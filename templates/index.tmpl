@@ -1,0 +1,25 @@
+{{ template "header.tmpl" }}
+<body>
+    <div class="body">
+        <div class="block">
+        <form class="search" role="search" action="/home" method="GET">
+        <input placeholder="Поиск по названию" type="search" name="search" autocomplete="off">
+        <button type="submit" class="btn_submit">
+        <img src="../image/search.png" alt="" class="search_image">
+        </button>
+        </form>
+        <div class="card_container">
+        {{ range . }}
+        <a href="http://127.0.0.1:8080/home/{{.Index}}" class="card">
+            <div class="image_item"> <img src="{{.Photo}}" alt="" class="image"></div>
+            <div class="text_item">{{ .Name }}</div>
+            <div class="discription"> {{ .Description }}</div>
+        </a>
+        {{ else }}
+        <div class="message">Ничего не найдено</div>
+        {{ end }}
+        </div>
+        </div>
+    </div>
+</body>
+</html>
