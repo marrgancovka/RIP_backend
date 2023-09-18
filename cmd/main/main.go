@@ -1,12 +1,13 @@
 package main
 
 import (
-	"awesomeProject/internal/api"
+	"awesomeProject/internal/app/pkg"
 	"log"
 )
 
 func main() {
+	application = app.New()
+	application.Run()
 	log.Println("Application start!")
-	api.StartServer()
 	log.Println("Application terminated!")
 }

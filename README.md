@@ -1,2 +1,0 @@
-# DevelopmentNetworkApplication_Golang
-Лабораторные работы по крусу Разработка Интернет Приложений
