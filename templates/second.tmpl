@@ -1,15 +1,27 @@
-{{ template "header.tmpl"}}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starship</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&family=Roboto:wght@100&display=swap" rel="stylesheet">
+</head>
 <body>
+{{ template "header.tmpl"}}
     <div class="body">
         <div class="block">
         <div class="container">
             <div class="photo"> <img class="image" src="{{ .Photo }}" alt=""></div>
             <div class="text">
                 <h2 class="name">{{ .Name }}</h2>
-                <h6 class="details"> {{ .Details }}</h6>
+                <h6 class="details"> {{ .Description }}</h6>
                 <div><a href="http://127.0.0.1:8080/home" class="btn_back">Вернуться к списку</a></div>
             </div>
         </div>
+        </div>
     </div>
+{{ template "footer.tmpl"}}
 </body>
 </html>

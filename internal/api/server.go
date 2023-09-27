@@ -1,33 +1,38 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Services struct {
-	Index       string
 	Name        string
-	Price       float32
+	Modificate  string
 	Description string
-	Details     string
 	Photo       string
 }
 
 var data = [...]Services{
-	{"0", "X-20 Dyna Soar", 120, "Пилотируемый космический перехватчик-разведчик-бомбардировщик", "Аппарат был выполнен по аэродинамической схеме орбитального самолета и является многоразовым. Выведение Х-20 на орбиту предполагалось различными модификациями ракеты-носителя «Титан». Вариант исполнения полета может быть низкоорбитальным одновитковым полёт по схеме «разгон—планирование» и орбитальным многовитковым полётом на любое число витков, необходимое для выполнения задачи.", "/image/Dyna_Soar.jpg"},
-	{"1", "VentureStar", 122, "Перспективный многоразовый космический корабль одноступенчатой аэрокосмической системы-космолёта нового поколения, являющийся средством массового вывода людей и грузов в космос.", "Аппарат взлетает вертикально, как ракета и садится, как самолёт. Орбитальный корабль — одноступенчатый, он не использует внешних баков и ускорителей. Высокой эффективности предполагалось достичь, используя клиновоздушные ракетные двигатели.", "/image/Venturestar1.jpg"},
-	{"2", "Space Shuttle", 134, "Многоразовый транспортный космический корабль.", "Шаттл запускается в космос при помощи двух твердотопливных ракетных ускорителей и трёх собственных маршевых двигателей, которые получают топливо из огромного внешнего подвесного бака, на начальном участке траектории основную тягу создают отделяемые твердотопливные ускорители[4]. На орбите шаттл осуществляет манёвры за счёт двигателей системы орбитального маневрирования, возвращаясь на Землю как планёр.", "/image/SpaceShuttle.webp"},
-	{"3", "SpaceX Starship", 264, "Многоразовая двухступенчатая система из ракеты-носителя и космического корабля, предназначенная для доставки грузов и людей на различные орбиты, а также для межпланетных полётов на Луну и Марс.", "Космический корабль Starship объединяет в себе две функции — второй ступени, используемой для достижения орбитальной скорости при запуске с Земли, и многоразового космического аппарата, способного выполнять полёт в космическом пространстве и совершать управляемую посадку на Землю, Луну или Марс. Многоразовая сверхтяжёлая ракета-носитель Super Heavy будет использоваться в качестве первой ступени только для взлёта с Земли.", "/image/starship.jpg"},
-	{"4", "Dragon 2", 65, "Многоразовый пилотируемый космический корабль компании SpaceX, предназначенный для доставки экипажа до 7 человек на Международную космическую станцию (МКС) и возвращения их на Землю.", "Dragon 2 выводится на орбиту ракетой-носителем Falcon 9, его спускаемая капсула возвращается на Землю приводнением. Как показала миссия SpaceX AX-1, в результате возвращение корабля критически зависит от погоды в месте посадки, в отличие от всех остальных средств доставки на МКС.", "/image/Dragon.jpg"},
+	{"STARSHIP MK1", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK2", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK3", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK4", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK5", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK6", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK7", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK8", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK9", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK10", "ldlld", "sre", "/image/rocket.jpg"},
+	{"STARSHIP MK11", "ldlld", "sre", "/image/rocket.jpg"},
 }
 
 func getItemById(c *gin.Context) {
-	id := c.Param("id")
+	name := c.Param("name")
 	for _, a := range data {
-		if a.Index == id {
+		if a.Name == name {
 			c.HTML(http.StatusOK, "second.tmpl", a)
 		}
 	}
@@ -43,11 +48,16 @@ func getItems(c *gin.Context) {
 				filterData = append(filterData, a)
 			}
 		}
-		c.HTML(http.StatusOK, "index.tmpl", filterData)
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"Data":   filterData,
+			"Search": search,
+		})
 		return
 	}
-
-	c.HTML(http.StatusOK, "index.tmpl", data)
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		"Data":   data,
+		"Search": search,
+	})
 }
 
 func StartServer() {
@@ -55,12 +65,13 @@ func StartServer() {
 	log.Println("Server start up")
 
 	r := gin.Default()
+
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/image", "./static/image")
 	r.Static("/styles", "./static/css")
 
 	r.GET("/home", getItems)
-	r.GET("/home/:id", getItemById)
+	r.GET("/home/:name", getItemById)
 
 	r.Run()
 	log.Println("Server down")
