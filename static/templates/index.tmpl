@@ -1,25 +1,41 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceY</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&family=Roboto+Condensed:wght@300;400;700&family=Roboto:wght@100&display=swap" rel="stylesheet"><body>
 {{ template "header.tmpl" }}
-<body>
     <div class="body">
         <div class="block">
-        <form class="search" role="search" action="/home" method="GET">
-        <input placeholder="Поиск по названию" type="search" name="search" autocomplete="off">
-        <button type="submit" class="btn_submit">
-        <img src="../image/search.png" alt="" class="search_image">
-        </button>
-        </form>
+            <form class="search" role="search" action="/home" method="GET">
+                <input placeholder="Поиск по названию" type="search" name="search" autocomplete="off" value="{{ .Search }}">
+                <button type="submit" class="btn_submit">
+                    <img src="../image/search.png" alt="" class="search_image">
+                </button>
+            </form>
         <div class="card_container">
-        {{ range . }}
-        <a href="http://127.0.0.1:8080/home/{{.Index}}" class="card">
-            <div class="image_item"> <img src="{{.Photo}}" alt="" class="image"></div>
-            <div class="text_item">{{ .Name }}</div>
-            <div class="discription"> {{ .Description }}</div>
-        </a>
+        {{ range .Data }}
+        <div class="card">
+            <a href="http://127.0.0.1:8080/home/{{.Name}}" class="image_item">
+                <img src="{{.Photo}}" alt="" class="image">
+            </a>
+            <a href="http://127.0.0.1:8080/home/{{.Name}}" class="text_item">
+                {{ .Name }}
+            </a>
+                <div class="discription"> {{ .Modificate }}</div>
+        </div>
         {{ else }}
-        <div class="message">Ничего не найдено</div>
+        <div class="message">
+            <div><img src="/image/not_found.png" alt=""></div>
+            <div>Ничего не найдено</div>
+        </div>
         {{ end }}
         </div>
         </div>
     </div>
+{{ template "footer.tmpl"}}
 </body>
 </html>
