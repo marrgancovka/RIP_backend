@@ -2,7 +2,6 @@ package config
 
 //читает конфигурацию
 import (
-	"context"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -19,8 +18,8 @@ type Config struct {
 	ServicePort int
 }
 
-//создает новый объект конфигурации, загружая данные из файла конфигурации
-func NewConfig(ctx context.Context) (*Config, error) {
+// создает новый объект конфигурации, загружая данные из файла конфигурации
+func NewConfig() (*Config, error) {
 	var err error
 
 	configName := "config"

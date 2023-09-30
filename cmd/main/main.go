@@ -1,12 +1,37 @@
 package main
 
 import (
+	"awesomeProject/internal/app/config"
+	"awesomeProject/internal/app/dsn"
+	"awesomeProject/internal/app/handler"
+	app "awesomeProject/internal/app/pkg"
+	"awesomeProject/internal/app/repository"
+	"fmt"
 	"log"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	// application = app.New()
-	// application.Run()
+	logger := logrus.New()
+	router := gin.Default()
+	conf, err := config.NewConfig()
+	if err != nil {
+		logger.Fatal("Error of configuration: %s", err)
+	}
+
+	dsn := dsn.FromEnv()
+	fmt.Println(dsn)
+
+	repo, err := repository.New(dsn)
+	if err != nil {
+		logger.Fatalf("Repository error: %s", err)
+	}
+
+	handler := handler.New(logger, repo)
+	application := app.New(conf, router, logger, handler)
+	application.Run()
 	log.Println("Application start!")
 	log.Println("Application terminated!")
 }
