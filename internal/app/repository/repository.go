@@ -39,3 +39,12 @@ func (r *Repository) GetShipByID(id int) (*ds.Ship, error) {
 	}
 	return ship, nil
 }
+
+// удалить услугу по айди
+func (r *Repository) DeleteShip(id int) error {
+	err := r.db.Exec("UPDATE ships SET is_delete=true WHERE id = ?", id).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -31,6 +31,7 @@ func New(l *logrus.Logger, r *repository.Repository) *Handler {
 func (h *Handler) Register(r *gin.Engine) {
 	r.GET("/home", h.ShipsTMPL)
 	r.GET("/home/:id", h.ShipsTMPL)
+	r.POST("/home/:id", h.ShipDelete)
 
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")
@@ -81,4 +82,17 @@ func (h *Handler) ShipsTMPL(c *gin.Context) {
 	c.HTML(http.StatusOK, ShipsAll, gin.H{
 		"Ships": ships,
 	})
+}
+
+func (h *Handler) ShipDelete(c *gin.Context) {
+	id_del := c.Param("id")
+	id, err := strconv.Atoi(id_del)
+	if err != nil {
+		return
+	}
+	err1 := h.Repository.DeleteShip(id)
+	if err1 != nil {
+		return
+	}
+	c.Redirect(http.StatusFound, "/home")
 }

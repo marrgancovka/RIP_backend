@@ -25,7 +25,12 @@
             <a href="http://127.0.0.1:8080/home/{{.ID}}" class="text_item">
                 {{ .Title }}
             </a>
-                <div class="discription"> {{ .Type }}</div>
+            <div class="discription">
+                <div class="type">{{ .Type }}</div>
+                <form method="POST" action="/home/{{ .ID }}" class="del">
+                    <button type="submit" class="btn_submit"> <img src="/image/del.png" alt="Удалить" class="btn_del"> </button>
+                </form>
+            </div>
         </div>
         {{ else }}
         <div class="message">

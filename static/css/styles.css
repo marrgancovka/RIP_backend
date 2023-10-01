@@ -52,9 +52,8 @@ a{
 .card_container{
     display: flex;
     flex-wrap: wrap;
-    padding: 2% 1%;
+    padding: 0 1%;
     flex: 1 1 auto;
-    
 }
 .card{
     flex: 0 1 21%;
@@ -97,8 +96,10 @@ a{
 }
 .discription{
     font-size: 18px;
-    margin: 5% auto;
+    margin: 5%;
     flex: 1 1 auto;
+    display: flex;
+    justify-content: space-between;
 }
 .search{
     display: flex;
@@ -123,7 +124,7 @@ input::placeholder{
 }
 .btn_submit{
     border: none;
-    background: white;
+    background: rgb(0, 0, 0, 0);
 }
 .btn_submit:hover{
     cursor: pointer;
@@ -135,9 +136,24 @@ input::placeholder{
     justify-content: center;
     align-items: center;
     min-width: 100%;
-
-
 }
+.btn_del{
+    height: 26px;
+}
+.del{
+    margin: 0;
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+}
+.type{
+    display: flex;
+    align-items: center;
+}
+.grey:active{
+    background-color: #e7e7e7;
+}
+
 /* ------------------second---------------------------- */
 .container{
     display: flex;
