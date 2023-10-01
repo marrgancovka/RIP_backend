@@ -3,7 +3,6 @@ package repository
 //отвечает за обращение к хранилищам данных
 import (
 	"awesomeProject/internal/app/ds"
-	"fmt"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -34,28 +33,9 @@ func (r *Repository) GetAllShip() (*[]ds.Ship, error) {
 // получить услугу по айди
 func (r *Repository) GetShipByID(id int) (*ds.Ship, error) {
 	ship := &ds.Ship{}
-	err := r.db.First(ship, "id=?", "1").Error
+	err := r.db.First(ship, "id=?", id).Error
 	if err != nil {
 		return nil, err
 	}
 	return ship, nil
-}
-
-func (r *Repository) DeleteShip(id int) error {
-	var ship ds.Ship
-	if res := r.db.First(&ship, id); res.Error != nil {
-		return res.Error
-	}
-	if ship.ID == 0 {
-		return fmt.Errorf("Ship not found")
-	}
-
-	ship.Is_delete = true
-	res := r.db.Save(&ship)
-	return res.Error
-
-}
-
-func (r *Repository) CreateShip(ship ds.Ship) error {
-	return r.db.Create(ship).Error
 }

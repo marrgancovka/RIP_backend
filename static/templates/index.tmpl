@@ -17,15 +17,15 @@
                 </button>
             </form>
         <div class="card_container">
-        {{ range .Data }}
+        {{ range .Ships }}
         <div class="card">
-            <a href="http://127.0.0.1:8080/home/{{.Name}}" class="image_item">
-                <img src="{{.Photo}}" alt="" class="image">
+            <a href="http://127.0.0.1:8080/home/{{.ID}}" class="image_item">
+                <img src="{{.Image_url}}" alt="" class="image">
             </a>
-            <a href="http://127.0.0.1:8080/home/{{.Name}}" class="text_item">
-                {{ .Name }}
+            <a href="http://127.0.0.1:8080/home/{{.ID}}" class="text_item">
+                {{ .Title }}
             </a>
-                <div class="discription"> {{ .Modificate }}</div>
+                <div class="discription"> {{ .Type }}</div>
         </div>
         {{ else }}
         <div class="message">
