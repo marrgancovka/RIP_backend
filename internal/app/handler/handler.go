@@ -3,6 +3,7 @@ package handler
 import (
 	"awesomeProject/internal/app/ds"
 	"awesomeProject/internal/app/repository"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -59,18 +60,21 @@ func (h *Handler) ShipsTMPL(c *gin.Context) {
 	if search != "" {
 		var filterData []ds.Ship
 		ships, err := h.Repository.GetAllShip()
+
 		if err != nil {
 			return
 		}
 		for _, a := range *ships {
-			if strings.Contains(strings.ToLower(search), strings.ToLower(a.Title)) {
+			if strings.Contains(strings.ToLower(a.Title), strings.ToLower(search)) {
 				filterData = append(filterData, a)
 			}
 		}
+		fmt.Println(filterData)
 		c.HTML(http.StatusOK, ShipsAll, gin.H{
-			"Ships":  ships,
+			"Ships":  filterData,
 			"Search": search,
 		})
+		return
 	}
 
 	//вывод всех услуг
