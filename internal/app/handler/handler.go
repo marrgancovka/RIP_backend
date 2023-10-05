@@ -1,12 +1,9 @@
 package handler
 
 import (
-	"awesomeProject/internal/app/ds"
 	"awesomeProject/internal/app/repository"
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -29,6 +26,7 @@ func New(l *logrus.Logger, r *repository.Repository) *Handler {
 	}
 }
 
+// иницилизируем запросы
 func (h *Handler) Register(r *gin.Engine) {
 	r.GET("/home", h.ShipsTMPL)
 	r.GET("/home/:id", h.ShipsTMPL)
@@ -57,37 +55,18 @@ func (h *Handler) ShipsTMPL(c *gin.Context) {
 	}
 	//фильтр всех услуг (поиск)
 	search := c.Query("search")
-	if search != "" {
-		var filterData []ds.Ship
-		ships, err := h.Repository.GetAllShip()
-
-		if err != nil {
-			return
-		}
-		for _, a := range *ships {
-			if strings.Contains(strings.ToLower(a.Title), strings.ToLower(search)) {
-				filterData = append(filterData, a)
-			}
-		}
-		fmt.Println(filterData)
-		c.HTML(http.StatusOK, ShipsAll, gin.H{
-			"Ships":  filterData,
-			"Search": search,
-		})
-		return
-	}
-
-	//вывод всех услуг
-
-	ships, err := h.Repository.GetAllShip()
+	ships, err := h.Repository.GetAllShip(search)
 	if err != nil {
 		return
 	}
 	c.HTML(http.StatusOK, ShipsAll, gin.H{
-		"Ships": ships,
+		"Ships":  ships,
+		"Search": search,
 	})
+	return
 }
 
+// удалить услугу по айди из пост-запроса
 func (h *Handler) ShipDelete(c *gin.Context) {
 	id_del := c.Param("id")
 	id, err := strconv.Atoi(id_del)

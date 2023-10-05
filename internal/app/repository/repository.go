@@ -3,6 +3,7 @@ package repository
 //отвечает за обращение к хранилищам данных
 import (
 	"awesomeProject/internal/app/ds"
+	"fmt"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -24,9 +25,15 @@ func New(dsn string) (*Repository, error) {
 }
 
 // получить все услуги
-func (r *Repository) GetAllShip() (*[]ds.Ship, error) {
+func (r *Repository) GetAllShip(search string) (*[]ds.Ship, error) {
 	var ships []ds.Ship
+	if search != "" {
+		res := r.db.Where("Is_delete = ?", "False").Where("Title ILIKE ?", "%"+search+"%").Find(&ships)
+		fmt.Println(&ships)
+		return &ships, res.Error
+	}
 	res := r.db.Where("Is_delete = ?", "False").Find(&ships)
+	fmt.Println(&ships)
 	return &ships, res.Error
 }
 
