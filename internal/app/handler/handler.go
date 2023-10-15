@@ -35,9 +35,8 @@ func (h *Handler) Register(r *gin.Engine) {
 
 	r.GET("/applications", h.get_applications)
 	r.GET("/applications/:id", h.get_application)
-	r.PUT("/application/admin/:id", h.put_application_admin)
-	r.PUT("/application/client/:id", h.put_application_client)
-	r.PUT("/application/:id", h.put_application)
+	r.PUT("/application/admin", h.put_application_admin)
+	r.PUT("/application/client", h.put_application_client)
 	r.DELETE("/application/:id", h.delete_application)
 
 	r.GET("/flights/cosmodroms", h.get_cosmodroms)
@@ -54,46 +53,3 @@ func (h *Handler) Register(r *gin.Engine) {
 	// r.Static("/styles", "./static/css")
 	// r.Static("/image", "./static/image")
 }
-
-// // метод получения услуг всех, фильтрованных или по айди
-// func (h *Handler) ShipsTMPL(c *gin.Context) {
-// 	// подробнее об 1 услуге
-// 	id_query := c.Param("id")
-// 	if id_query != "" {
-// 		id, err := strconv.Atoi(id_query)
-// 		if err != nil {
-// 			return
-// 		}
-// 		ship, err := h.Repository.GetShipByID(id)
-// 		if err != nil {
-// 			return
-// 		}
-// 		c.HTML(http.StatusOK, ShipOne, ship)
-// 		return
-// 	}
-// 	//фильтр всех услуг (поиск)
-// 	search := c.Query("search")
-// 	ships, err := h.Repository.GetAllShip(search)
-// 	if err != nil {
-// 		return
-// 	}
-// 	c.HTML(http.StatusOK, ShipsAll, gin.H{
-// 		"Ships":  ships,
-// 		"Search": search,
-// 	})
-// 	return
-// }
-
-// // удалить услугу по айди из пост-запроса
-// func (h *Handler) ShipDelete(c *gin.Context) {
-// 	id_del := c.Param("id")
-// 	id, err := strconv.Atoi(id_del)
-// 	if err != nil {
-// 		return
-// 	}
-// 	err1 := h.Repository.DeleteShip(id)
-// 	if err1 != nil {
-// 		return
-// 	}
-// 	c.Redirect(http.StatusFound, "/home")
-// }

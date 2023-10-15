@@ -1,9 +1,18 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func (h *Handler) get_cosmodroms(c *gin.Context) {
-	// получить космодромы
+	cosmodroms, err := h.Repository.Select_cosmodroms()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "success", "data": cosmodroms})
 }
 
 func (h *Handler) put_flight_date(c *gin.Context) {

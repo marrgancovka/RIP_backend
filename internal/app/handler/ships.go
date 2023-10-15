@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+// возвращает список всех космических кораблей
 func (h *Handler) Get_ships(c *gin.Context) {
 	search := c.Query("search")
 	ships, err := h.Repository.Select_ships(search)
@@ -20,6 +22,7 @@ func (h *Handler) Get_ships(c *gin.Context) {
 	return
 }
 
+// возвращает космический корабль по id из запроса
 func (h *Handler) Get_ship(c *gin.Context) {
 	id_param := c.Param("id")
 	id, err := strconv.Atoi(id_param)
@@ -38,6 +41,7 @@ func (h *Handler) Get_ship(c *gin.Context) {
 	return
 }
 
+// создает новый космический корабль
 func (h *Handler) Post_ship(c *gin.Context) {
 	var newShip ds.Ship
 	err := c.BindJSON(&newShip)
@@ -64,24 +68,37 @@ func (h *Handler) Post_ship(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"status": "succses"})
 }
 
+// добавляем услугу в заявку (или создаем новую заявку и добавляем в нее услугу)
 func (h *Handler) Post_application(c *gin.Context) {
-	var newApplication ds.Application
-	err := c.BindJSON(&newApplication)
+	var request struct {
+		Id_Ship            uint
+		Id_Cosmodrom_Begin uint
+		Id_cosmodrom_End   uint
+		Id_user            uint
+		Date_Flight        time.Time
+	}
+	request.Id_user = 2
+	err := c.BindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}
-	if newApplication.ID != 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Поле id не должно быть заполнено!"})
+
+	if request.Id_Ship == 0 || request.Id_Cosmodrom_Begin == 0 || request.Id_cosmodrom_End == 0 || request.Date_Flight.IsZero() {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Космический корабль, космодромы и дата полета не могут быть пустыми"})
 		return
 	}
-	err2 := h.Repository.Insert_application(&newApplication)
+
+	err2 := h.Repository.Insert_application(&request)
 	if err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
+		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"status": "succses"})
+	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Услуга добалена в заявку"})
+	return
 }
 
+// изменяет данные про космический корабль
 func (h *Handler) Put_ship(c *gin.Context) {
 	var updateShip ds.Ship
 	err := c.BindJSON(&updateShip)
@@ -104,6 +121,7 @@ func (h *Handler) Put_ship(c *gin.Context) {
 	return
 }
 
+// логически удаляет космический корабль
 func (h *Handler) Delete_ship(c *gin.Context) {
 	id_param := c.Param("id")
 	id, err := strconv.Atoi(id_param)

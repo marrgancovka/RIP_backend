@@ -1,6 +1,10 @@
 package repository
 
-import "awesomeProject/internal/app/ds"
+import (
+	"awesomeProject/internal/app/ds"
+	"errors"
+	"time"
+)
 
 // возвращает список космических кораблей
 func (r *Repository) Select_ships(search string) (*[]ds.Ship, error) {
@@ -26,10 +30,39 @@ func (r *Repository) Insert_ship(ship *ds.Ship) error {
 	return res.Error
 }
 
-// создание новой заявки
-func (r *Repository) Insert_application(application *ds.Application) error {
-	res := r.db.Create(&application)
-	return res.Error
+// добавление космического корабля в заявку и создание заявки если ее не было
+func (r *Repository) Insert_application(request *struct {
+	Id_Ship            uint
+	Id_Cosmodrom_Begin uint
+	Id_cosmodrom_End   uint
+	Id_user            uint
+	Date_Flight        time.Time
+}) error {
+	var app ds.Application
+	r.db.Where("id_user = ?", request.Id_user).Where("status = ?", "created").First(&app)
+
+	if app.ID == 0 {
+		newApp := ds.Application{
+			Id_user:       request.Id_user,
+			Id_admin:      1,
+			Status:        "created",
+			Date_creation: time.Now(),
+		}
+		res := r.db.Create(&newApp)
+		if res.Error != nil {
+			return res.Error
+		}
+		app = newApp
+	}
+	flight := ds.Flights{
+		Id_Ship:            request.Id_Ship,
+		Id_Application:     app.ID,
+		Id_Cosmodrom_Begin: request.Id_Cosmodrom_Begin,
+		Id_cosmodrom_End:   request.Id_cosmodrom_End,
+		Date_Flight:        request.Date_Flight,
+	}
+	result := r.db.Create(&flight)
+	return result.Error
 }
 
 // изменение информации о космическом корабле
@@ -38,6 +71,9 @@ func (r *Repository) Update_ship(updateShip *ds.Ship) error {
 	res := r.db.First(&ship, "id =?", updateShip.ID)
 	if res.Error != nil {
 		return res.Error
+	}
+	if updateShip.Is_delete != false {
+		return errors.New("Нельзя менять статус услуги")
 	}
 	if updateShip.Title != "" {
 		ship.Title = updateShip.Title
