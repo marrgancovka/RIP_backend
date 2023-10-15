@@ -40,9 +40,9 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.DELETE("/application/:id", h.delete_application)
 
 	r.GET("/flights/cosmodroms", h.get_cosmodroms)
-	r.PUT("/flights/date/application:id_application/ship:id_ship", h.put_flight_date)
-	r.PUT("flights/cosmodrom/begin/application:id_application/ship:id_ship", h.put_cosmodrom_begin)
-	r.PUT("/flights/cosmodrom/end/application:id_application/ship:id_ship", h.put_cosmodrom_end)
+	r.PUT("/flights/date", h.put_flight_date)
+	r.PUT("flights/cosmodrom/begin", h.put_cosmodrom_begin)
+	r.PUT("/flights/cosmodrom/end", h.put_cosmodrom_end)
 	r.DELETE("/flights/application:id_application/ship:id_ship", h.delete_flight)
 
 	// r.GET("/home", h.ShipsTMPL)
