@@ -2,6 +2,7 @@ package handler
 
 import (
 	"awesomeProject/internal/app/ds"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"strings"
@@ -61,10 +62,37 @@ func (h *Handler) Post_ship(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Тип - обязательное поле!"})
 		return
 	}
+
+	file, header, err3 := c.Request.FormFile("file")
+	if header == nil || header.Size == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Не найдет header"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err3.Error()})
+		return
+	}
+	defer func(file multipart.File) {
+		errLol := file.Close()
+		if errLol != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": errLol.Error()})
+			return
+		}
+	}(file)
+
+	// Upload the image to minio server.
+	newImageURL, errMinio := h.ImageInMinio(&file, header)
+	if errMinio != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": errMinio.Error()})
+		return
+	}
+
+	newShip.Image_url = newImageURL
 	err2 := h.Repository.Insert_ship(&newShip)
 	if err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
 	}
+
 	c.JSON(http.StatusCreated, gin.H{"status": "succses"})
 }
 
@@ -110,6 +138,32 @@ func (h *Handler) Put_ship(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "error": "Такой id не найден"})
 		return
 	}
+
+	file, header, err3 := c.Request.FormFile("file")
+	if header == nil || header.Size == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Не найдет header"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err3.Error()})
+		return
+	}
+	defer func(file multipart.File) {
+		errLol := file.Close()
+		if errLol != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": errLol.Error()})
+			return
+		}
+	}(file)
+
+	// Upload the image to minio server.
+	newImageURL, errMinio := h.ImageInMinio(&file, header)
+	if errMinio != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": errMinio.Error()})
+		return
+	}
+
+	updateShip.Image_url = newImageURL
 
 	err2 := h.Repository.Update_ship(&updateShip)
 	if err2 != nil {

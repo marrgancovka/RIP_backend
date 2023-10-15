@@ -4,6 +4,7 @@ import (
 	"awesomeProject/internal/app/config"
 	"awesomeProject/internal/app/dsn"
 	"awesomeProject/internal/app/handler"
+	myminio "awesomeProject/internal/app/myMinio"
 	app "awesomeProject/internal/app/pkg"
 	"awesomeProject/internal/app/repository"
 	"fmt"
@@ -29,6 +30,7 @@ import (
 func main() {
 	logger := logrus.New()
 	router := gin.Default()
+	client := myminio.NewMinioClient(logger)
 	conf, err := config.NewConfig()
 	if err != nil {
 		logger.Fatal( /*"Error of configuration: %s",*/ err)
@@ -42,7 +44,7 @@ func main() {
 		logger.Fatalf("Repository error: %s", err)
 	}
 
-	handler := handler.New(logger, repo)
+	handler := handler.New(logger, repo, client)
 	application := app.New(conf, router, logger, handler)
 	application.Run()
 	log.Println("Application start!")

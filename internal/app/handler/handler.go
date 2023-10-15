@@ -1,9 +1,13 @@
 package handler
 
 import (
+	myminio "awesomeProject/internal/app/myMinio"
 	"awesomeProject/internal/app/repository"
+	"fmt"
+	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -13,14 +17,16 @@ const (
 )
 
 type Handler struct {
-	Logger     *logrus.Logger
-	Repository *repository.Repository
+	Logger      *logrus.Logger
+	Repository  *repository.Repository
+	MinioClient *minio.Client
 }
 
-func New(l *logrus.Logger, r *repository.Repository) *Handler {
+func New(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
 	return &Handler{
-		Logger:     l,
-		Repository: r,
+		Logger:      l,
+		Repository:  r,
+		MinioClient: m,
 	}
 }
 
@@ -45,11 +51,20 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.PUT("/flights/cosmodrom/end", h.put_cosmodrom_end)
 	r.DELETE("/flights/application:id_application/ship:id_ship", h.delete_flight)
 
-	// r.GET("/home", h.ShipsTMPL)
-	// r.GET("/home/:id", h.ShipsTMPL)
-	// r.POST("/home/:id", h.ShipDelete)
+	r.LoadHTMLGlob("static/templates/*")
+	r.Static("/styles", "./static/css")
+	r.Static("/image", "./static/image")
+	r.Static("/docs", "/home/margarita/Документы/DevelopmentNetworkApplication_Golang/cmd/main/docs/swagger.json")
+}
 
-	// r.LoadHTMLGlob("static/templates/*")
-	// r.Static("/styles", "./static/css")
-	// r.Static("/image", "./static/image")
+func (h *Handler) ImageInMinio(file *multipart.File, header *multipart.FileHeader) (string, error) {
+	objectName := header.Filename
+
+	if _, err := h.MinioClient.PutObject("vikings-server", objectName, *file, header.Size, minio.PutObjectOptions{
+		ContentType: header.Header.Get("Content-Type"),
+	}); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("http://%s/%s/%s", myminio.MinioHost, myminio.BucketName, objectName), nil
 }
