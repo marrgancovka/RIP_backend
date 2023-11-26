@@ -43,7 +43,7 @@ func (h *Handler) Get_ship(c *gin.Context) {
 
 // создает новый космический корабль
 func (h *Handler) Post_ship(c *gin.Context) {
-	var newShip ds.Ship
+	newShip := ds.Ship{}
 	err := c.BindJSON(&newShip)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -61,7 +61,11 @@ func (h *Handler) Post_ship(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Тип - обязательное поле!"})
 		return
 	}
-
+	errRep := h.Repository.Insert_ship(&newShip)
+	if errRep != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errRep.Error()})
+		return
+	}
 	c.JSON(http.StatusCreated, gin.H{"status": "Создан новый космический корабль"})
 }
 
@@ -104,33 +108,10 @@ func (h *Handler) Put_ship(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Такой id не найден"})
 		return
 	}
-
-	file, header, err3 := c.Request.FormFile("file")
-	if header == nil || header.Size == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Не найдет header"})
-		return
-	}
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err3.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	defer func(file multipart.File) {
-		errLol := file.Close()
-		if errLol != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": errLol.Error()})
-			return
-		}
-	}(file)
-
-	// Upload the image to minio server.
-	newImageURL, errMinio := h.ImageInMinio(&file, header)
-	if errMinio != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errMinio.Error()})
-		return
-	}
-
-	updateShip.Image_url = newImageURL
-
 	err2 := h.Repository.Update_ship(&updateShip)
 	if err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err2.Error()})

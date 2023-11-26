@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const default_image_url = "http://localhost:9000/spacey/1.png"
+
 // возвращает список космических кораблей
 func (r *Repository) Select_ships(search string) (*[]ds.Ship, error) {
 	var ships []ds.Ship
@@ -27,6 +29,8 @@ func (r *Repository) Select_ship(id int) (*ds.Ship, error) {
 
 // добавление нового космического корабля
 func (r *Repository) Insert_ship(ship *ds.Ship) error {
+	ship.Image_url = default_image_url
+
 	res := r.db.Create(&ship)
 	return res.Error
 }
@@ -53,8 +57,10 @@ func (r *Repository) Insert_application(request *struct {
 		app = newApp
 	}
 	flight := ds.Flights{
-		Id_Ship:        request.Id_Ship,
-		Id_Application: app.ID,
+		Id_Ship:            request.Id_Ship,
+		Id_Application:     app.ID,
+		Id_Cosmodrom_Begin: 1,
+		Id_cosmodrom_End:   1,
 	}
 	result := r.db.Create(&flight)
 	return result.Error
@@ -80,7 +86,7 @@ func (r *Repository) Update_ship(updateShip *ds.Ship) error {
 		ship.Description = updateShip.Description
 	}
 	if updateShip.Image_url != "" {
-		ship.Image_url = updateShip.Image_url
+		return errors.New("Поле для изображения должно быть пустое")
 	}
 	if updateShip.Rocket != "" {
 		ship.Rocket = updateShip.Rocket

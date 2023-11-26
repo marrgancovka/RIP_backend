@@ -13,18 +13,26 @@ import (
 func (h *Handler) get_applications(c *gin.Context) {
 	status_query := c.Query("status")
 	date_query := c.Query("date")
-	var date time.Time
-	var err error
-	if date_query != "" {
-		layout := "2006-01-02T15:04:05Z"
-		date, err = time.Parse(layout, date_query)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
-			return
-		}
+	date_end_query := c.Query("date_end")
+	if date_query == "" {
+		date_query = "0001-01-01"
+	}
+	if date_end_query == "" {
+		date_end_query = "9999-12-31"
+	}
+	format := "2006-01-02"
+	date, err := time.Parse(format, date_query)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	date_end, err := time.Parse(format, date_end_query)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	applications, err2 := h.Repository.Select_applications(status_query, date)
+	applications, err2 := h.Repository.Select_applications(status_query, date, date_end)
 	if err2 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err2.Error()})
 		return

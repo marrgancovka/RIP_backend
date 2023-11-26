@@ -43,7 +43,7 @@ func (h *Handler) Register(r *gin.Engine) {
 
 	r.GET("/api/flights/cosmodroms", h.get_cosmodroms)
 	r.PUT("/api/flights/date", h.put_flight_date)
-	r.PUT("/apiflights/cosmodrom/begin", h.put_cosmodrom_begin)
+	r.PUT("/api/flights/cosmodrom/begin", h.put_cosmodrom_begin)
 	r.PUT("/api/flights/cosmodrom/end", h.put_cosmodrom_end)
 	r.DELETE("/api/flights/application:id_application/ship:id_ship", h.delete_flight)
 
