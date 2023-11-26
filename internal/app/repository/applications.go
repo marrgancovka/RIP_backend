@@ -35,7 +35,7 @@ func (r *Repository) Select_application(id int) (*ds.Application, *[]ds.Flights,
 	if result.Error != nil {
 		return nil, nil, result.Error
 	}
-	//ищем услуги в заявке
+	//ищем м-м заявки
 	res := r.db.Where("Id_Application = ?", id).Find(&flights)
 	if res.Error != nil {
 		return nil, nil, res.Error
@@ -77,7 +77,7 @@ func (r *Repository) Update_application_client(id uint, status string) error {
 // присваивает статус удалено
 func (r *Repository) Delete_application(id int) error {
 	var app ds.Application
-	res := r.db.First(&app, "id =?", id)
+	res := r.db.First(&app, "id =? AND status = 'created'", id)
 	if res.Error != nil {
 		return res.Error
 	}

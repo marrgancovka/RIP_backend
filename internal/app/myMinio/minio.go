@@ -18,8 +18,8 @@ func NewMinioClient(logger *logrus.Logger) *minio.Client {
 	if err != nil {
 		logger.Fatalf("error1: %s", err)
 	}
-	location := "us-east-1"
 
+	location := "us-east-1"
 	err = minioClient.MakeBucket(BucketName, location)
 	if err != nil {
 		exists, err2 := minioClient.BucketExists(BucketName)

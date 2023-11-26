@@ -3,6 +3,7 @@ package repository
 import (
 	"awesomeProject/internal/app/ds"
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -10,7 +11,7 @@ import (
 func (r *Repository) Select_ships(search string) (*[]ds.Ship, error) {
 	var ships []ds.Ship
 	if search != "" {
-		res := r.db.Where("Is_delete = ?", "False").Where("Title LIKE ?", "%"+search+"%").Find(&ships)
+		res := r.db.Where("Is_delete = ?", "False").Where("LOWER(Title) LIKE ?", "%"+strings.ToLower(search)+"%").Find(&ships)
 		return &ships, res.Error
 	}
 	res := r.db.Where("Is_delete = ?", "False").Find(&ships)
@@ -32,11 +33,8 @@ func (r *Repository) Insert_ship(ship *ds.Ship) error {
 
 // добавление космического корабля в заявку и создание заявки если ее не было
 func (r *Repository) Insert_application(request *struct {
-	Id_Ship            uint
-	Id_Cosmodrom_Begin uint
-	Id_cosmodrom_End   uint
-	Id_user            uint
-	Date_Flight        time.Time
+	Id_Ship uint
+	Id_user uint
 }) error {
 	var app ds.Application
 	r.db.Where("id_user = ?", request.Id_user).Where("status = ?", "created").First(&app)
@@ -55,11 +53,8 @@ func (r *Repository) Insert_application(request *struct {
 		app = newApp
 	}
 	flight := ds.Flights{
-		Id_Ship:            request.Id_Ship,
-		Id_Application:     app.ID,
-		Id_Cosmodrom_Begin: request.Id_Cosmodrom_Begin,
-		Id_cosmodrom_End:   request.Id_cosmodrom_End,
-		Date_Flight:        request.Date_Flight,
+		Id_Ship:        request.Id_Ship,
+		Id_Application: app.ID,
 	}
 	result := r.db.Create(&flight)
 	return result.Error
@@ -104,6 +99,18 @@ func (r *Repository) Delete_ship(id int) error {
 		return res.Error
 	}
 	ship.Is_delete = true
+	result := r.db.Save(ship)
+	return result.Error
+}
+
+// фото
+func (r *Repository) Update_image(id string, newUrl string) error {
+	ship := ds.Ship{}
+	res := r.db.First(&ship, id)
+	if res.Error != nil {
+		return res.Error
+	}
+	ship.Image_url = newUrl
 	result := r.db.Save(ship)
 	return result.Error
 }
