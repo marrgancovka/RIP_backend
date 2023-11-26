@@ -1,81 +1,66 @@
 package handler
 
 import (
+	myminio "awesomeProject/internal/app/myMinio"
 	"awesomeProject/internal/app/repository"
-	"net/http"
-	"strconv"
+	"fmt"
+	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	ShipsAll = "index.tmpl"
-	ShipOne  = "second.tmpl"
-)
-
 type Handler struct {
-	Logger     *logrus.Logger
-	Repository *repository.Repository
+	Logger      *logrus.Logger
+	Repository  *repository.Repository
+	MinioClient *minio.Client
 }
 
-func New(l *logrus.Logger, r *repository.Repository) *Handler {
+func New(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
 	return &Handler{
-		Logger:     l,
-		Repository: r,
+		Logger:      l,
+		Repository:  r,
+		MinioClient: m,
 	}
 }
 
 // иницилизируем запросы
 func (h *Handler) Register(r *gin.Engine) {
-	r.GET("/home", h.ShipsTMPL)
-	r.GET("/home/:id", h.ShipsTMPL)
-	r.POST("/home/:id", h.ShipDelete)
+	r.GET("/api/ships", h.Get_ships)
+	r.GET("/api/ships/:id", h.Get_ship)
+	r.POST("/api/ships", h.Post_ship)
+	r.POST("/api/ships/application", h.Post_application)
+	r.PUT("/api/ships", h.Put_ship)
+	r.PUT("/api/ships/image", h.AddImage)
+	r.DELETE("/api/ships/:id", h.Delete_ship)
+
+	r.GET("/api/applications", h.get_applications)
+	r.GET("/api/applications/:id", h.get_application)
+	r.PUT("/api/application/admin", h.put_application_admin)
+	r.PUT("/api/application/client", h.put_application_client)
+	r.DELETE("/api/application/:id", h.delete_application)
+
+	r.GET("/api/flights/cosmodroms", h.get_cosmodroms)
+	r.PUT("/api/flights/date", h.put_flight_date)
+	r.PUT("/api/flights/cosmodrom/begin", h.put_cosmodrom_begin)
+	r.PUT("/api/flights/cosmodrom/end", h.put_cosmodrom_end)
+	r.DELETE("/api/flights/application:id_application/ship:id_ship", h.delete_flight)
 
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")
 	r.Static("/image", "./static/image")
+
 }
 
-// метод получения услуг всех, фильтрованных или по айди
-func (h *Handler) ShipsTMPL(c *gin.Context) {
-	// подробнее об 1 услуге
-	id_query := c.Param("id")
-	if id_query != "" {
-		id, err := strconv.Atoi(id_query)
-		if err != nil {
-			return
-		}
-		ship, err := h.Repository.GetShipByID(id)
-		if err != nil {
-			return
-		}
-		c.HTML(http.StatusOK, ShipOne, ship)
-		return
-	}
-	//фильтр всех услуг (поиск)
-	search := c.Query("search")
-	ships, err := h.Repository.GetAllShip(search)
-	if err != nil {
-		return
-	}
-	c.HTML(http.StatusOK, ShipsAll, gin.H{
-		"Ships":  ships,
-		"Search": search,
-	})
-	return
-}
+func (h *Handler) ImageInMinio(file *multipart.File, header *multipart.FileHeader) (string, error) {
+	objectName := header.Filename
 
-// удалить услугу по айди из пост-запроса
-func (h *Handler) ShipDelete(c *gin.Context) {
-	id_del := c.Param("id")
-	id, err := strconv.Atoi(id_del)
-	if err != nil {
-		return
+	if _, err := h.MinioClient.PutObject(myminio.BucketName, objectName, *file, header.Size, minio.PutObjectOptions{
+		ContentType: header.Header.Get("Content-Type"),
+	}); err != nil {
+		return "", err
 	}
-	err1 := h.Repository.DeleteShip(id)
-	if err1 != nil {
-		return
-	}
-	c.Redirect(http.StatusFound, "/home")
+
+	return fmt.Sprintf("http://%s/%s/%s", myminio.MinioHost, myminio.BucketName, objectName), nil
 }

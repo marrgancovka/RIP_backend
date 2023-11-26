@@ -1,7 +1,7 @@
 package ds
 
 type Users struct {
-	ID           uint `gorm: "primarykey"`
+	ID           uint `gorm:"primarykey"`
 	FirstName    string
 	SecondName   string
 	Phone        string

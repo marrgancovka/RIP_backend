@@ -9,4 +9,5 @@ type Application struct {
 	Date_formation time.Time
 	Date_end       time.Time
 	Id_user        uint
+	Id_admin       uint
 }
