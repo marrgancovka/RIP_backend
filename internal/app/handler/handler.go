@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"awesomeProject/internal/app/config"
 	myminio "awesomeProject/internal/app/myMinio"
 	"awesomeProject/internal/app/repository"
 	"fmt"
@@ -12,13 +13,15 @@ import (
 )
 
 type Handler struct {
+	Config      *config.Config
 	Logger      *logrus.Logger
 	Repository  *repository.Repository
 	MinioClient *minio.Client
 }
 
-func New(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
+func New(c *config.Config, l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
 	return &Handler{
+		Config:      c,
 		Logger:      l,
 		Repository:  r,
 		MinioClient: m,
@@ -27,7 +30,7 @@ func New(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
 
 // иницилизируем запросы
 func (h *Handler) Register(r *gin.Engine) {
-	r.GET("/api/ships", h.Get_ships)
+	// r.Use(h.WithAuthCheck).GET("/api/ships", h.Get_ships)
 	r.GET("/api/ships/:id", h.Get_ship)
 	r.POST("/api/ships", h.Post_ship)
 	r.POST("/api/ships/application", h.Post_application)
@@ -50,6 +53,9 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")
 	r.Static("/image", "./static/image")
+
+	r.POST("/api/login", h.Login)
+	r.POST("/api/sign_up", h.SignUp)
 
 }
 

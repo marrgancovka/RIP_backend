@@ -44,7 +44,7 @@ func main() {
 		logger.Fatalf("Repository error: %s", err)
 	}
 
-	handler := handler.New(logger, repo, client)
+	handler := handler.New(conf, logger, repo, client)
 	application := app.New(conf, router, logger, handler)
 	application.Run()
 	log.Println("Application start!")

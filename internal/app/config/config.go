@@ -3,7 +3,9 @@ package config
 //читает конфигурацию
 import (
 	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -16,6 +18,12 @@ import (
 type Config struct {
 	ServiceHost string
 	ServicePort int
+	JWT         JWTConfig
+}
+type JWTConfig struct {
+	Token         string
+	ExpiresIn     time.Duration
+	SigningMethod jwt.SigningMethod
 }
 
 // создает новый объект конфигурации, загружая данные из файла конфигурации
@@ -45,6 +53,10 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 	log.Info("config parsed")
+
+	cfg.JWT.Token = "test"
+	cfg.JWT.ExpiresIn = time.Hour
+	cfg.JWT.SigningMethod = jwt.SigningMethodHS256
 
 	return cfg, nil
 }
