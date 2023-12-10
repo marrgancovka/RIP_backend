@@ -3,13 +3,19 @@ package handler
 import (
 	"awesomeProject/internal/app/config"
 	myminio "awesomeProject/internal/app/myMinio"
+	"awesomeProject/internal/app/redis"
 	"awesomeProject/internal/app/repository"
+	"awesomeProject/internal/app/role"
 	"fmt"
 	"mime/multipart"
+
+	_ "awesomeProject/docs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -17,45 +23,49 @@ type Handler struct {
 	Logger      *logrus.Logger
 	Repository  *repository.Repository
 	MinioClient *minio.Client
+	Redis       *redis.Client
 }
 
-func New(c *config.Config, l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
+func New(c *config.Config, l *logrus.Logger, r *repository.Repository, m *minio.Client, redis *redis.Client) *Handler {
 	return &Handler{
 		Config:      c,
 		Logger:      l,
 		Repository:  r,
 		MinioClient: m,
+		Redis:       redis,
 	}
 }
 
 // иницилизируем запросы
 func (h *Handler) Register(r *gin.Engine) {
-	// r.Use(h.WithAuthCheck).GET("/api/ships", h.Get_ships)
-	r.GET("/api/ships/:id", h.Get_ship)
-	r.POST("/api/ships", h.Post_ship)
-	r.POST("/api/ships/application", h.Post_application)
-	r.PUT("/api/ships", h.Put_ship)
-	r.PUT("/api/ships/image", h.AddImage)
-	r.DELETE("/api/ships/:id", h.Delete_ship)
+	r.GET("/api/ships", h.WithoutAuth(role.Admin, role.Buyer, role.Manager), h.Get_ships)
+	r.GET("/api/ships/:id", h.WithoutAuth(role.Admin, role.Buyer, role.Manager), h.Get_ship)
+	r.POST("/api/ships", h.WithAuthCheck(role.Admin, role.Manager), h.Post_ship)
+	r.POST("/api/ships/application", h.WithAuthCheck(role.Buyer), h.Post_application)
+	r.PUT("/api/ships", h.WithAuthCheck(role.Admin, role.Manager), h.Put_ship)
+	r.PUT("/api/ships/image", h.WithAuthCheck(role.Admin, role.Manager), h.AddImage)
+	r.DELETE("/api/ships/:id", h.WithAuthCheck(role.Admin, role.Manager), h.Delete_ship)
 
-	r.GET("/api/applications", h.get_applications)
-	r.GET("/api/applications/:id", h.get_application)
-	r.PUT("/api/application/admin", h.put_application_admin)
-	r.PUT("/api/application/client", h.put_application_client)
-	r.DELETE("/api/application/:id", h.delete_application)
+	r.GET("/api/applications", h.WithAuthCheck(role.Admin, role.Buyer, role.Manager), h.get_applications)
+	r.GET("/api/applications/:id", h.WithAuthCheck(role.Admin, role.Manager), h.get_application)
+	r.PUT("/api/application/admin", h.WithAuthCheck(role.Admin, role.Manager), h.put_application_admin)
+	r.PUT("/api/application/client", h.WithAuthCheck(role.Buyer), h.put_application_client)
+	r.DELETE("/api/application/:id", h.WithAuthCheck(role.Admin, role.Manager), h.delete_application)
 
-	r.GET("/api/flights/cosmodroms", h.get_cosmodroms)
-	r.PUT("/api/flights/date", h.put_flight_date)
-	r.PUT("/api/flights/cosmodrom/begin", h.put_cosmodrom_begin)
-	r.PUT("/api/flights/cosmodrom/end", h.put_cosmodrom_end)
-	r.DELETE("/api/flights/application:id_application/ship:id_ship", h.delete_flight)
+	r.GET("/api/flights/cosmodroms", h.WithoutAuth(role.Admin, role.Buyer, role.Manager), h.get_cosmodroms)
+	r.PUT("/api/flights/date", h.WithAuthCheck(role.Buyer), h.put_flight_date)
+	r.PUT("/api/flights/cosmodrom/begin", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_begin)
+	r.PUT("/api/flights/cosmodrom/end", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_end)
+	r.DELETE("/api/flights/application:id_application/ship:id_ship", h.WithAuthCheck(role.Buyer), h.delete_flight)
 
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")
 	r.Static("/image", "./static/image")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/api/login", h.Login)
 	r.POST("/api/sign_up", h.SignUp)
+	r.GET("/api/logout", h.Logout)
 
 }
 

@@ -1,12 +1,15 @@
 package main
 
 import (
+	_ "awesomeProject/docs"
 	"awesomeProject/internal/app/config"
 	"awesomeProject/internal/app/dsn"
 	"awesomeProject/internal/app/handler"
 	myminio "awesomeProject/internal/app/myMinio"
 	app "awesomeProject/internal/app/pkg"
+	"awesomeProject/internal/app/redis"
 	"awesomeProject/internal/app/repository"
+	"context"
 	"fmt"
 	"log"
 
@@ -14,26 +17,36 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// @title BITOP
+// @title SpaceY
 // @version 1.0
-// @description Bmstu Open IT Platform
+// @description Starship's flights
 
 // @contact.name API Support
 // @contact.url https://vk.com/bmstu_schedule
 // @contact.email bitop@spatecon.ru
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 // @license.name AS IS (NO WARRANTY)
 
-// @host 127.0.0.1
-// @schemes https http
-// @BasePath /sw
+// @host localhost:8080
+// @schemes http
+// @BasePath /
 func main() {
 	logger := logrus.New()
 	router := gin.Default()
 	client := myminio.NewMinioClient(logger)
+
 	conf, err := config.NewConfig()
 	if err != nil {
 		logger.Fatal( /*"Error of configuration: %s",*/ err)
+	}
+	ctx := context.Background()
+	redis, errRedis := redis.New(ctx, conf.Redis)
+	if errRedis != nil {
+		logger.Fatalf("Errof with redis connect: %s", err)
 	}
 
 	dsn := dsn.FromEnv()
@@ -44,7 +57,7 @@ func main() {
 		logger.Fatalf("Repository error: %s", err)
 	}
 
-	handler := handler.New(conf, logger, repo, client)
+	handler := handler.New(conf, logger, repo, client, redis)
 	application := app.New(conf, router, logger, handler)
 	application.Run()
 	log.Println("Application start!")
@@ -52,3 +65,4 @@ func main() {
 }
 
 // $HOME/go/bin/swag
+//$HOME/go/bin/swag init -g cmd/main/main.go

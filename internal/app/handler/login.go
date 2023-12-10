@@ -1,65 +1,62 @@
 package handler
 
-import (
-	"awesomeProject/internal/app/ds"
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"time"
+// import (
+// 	"awesomeProject/internal/app/ds"
+// 	"awesomeProject/internal/app/role"
+// 	"encoding/json"
+// 	"fmt"
+// 	"net/http"
+// 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
-)
+// 	"github.com/gin-gonic/gin"
+// 	"github.com/golang-jwt/jwt"
+// )
 
-const login = "name"
-const password = "12345"
-const jwtToken = "test"
-const ExpiresIn = time.Hour
+// func (h *Handler) Login(gCtx *gin.Context) {
+// 	cfg := h.Config
+// 	req := &ds.LoginReq{}
 
-var SigningMethod = jwt.SigningMethodHS256
+// 	err := json.NewDecoder(gCtx.Request.Body).Decode(req)
+// 	if err != nil {
+// 		gCtx.AbortWithError(http.StatusBadRequest, err)
+// 		return
+// 	}
 
-func (h *Handler) Login(gCtx *gin.Context) {
-	// cfg := a.config
-	req := &ds.LoginReq{}
+// 	user, err := h.Repository.GetUserByLogin(req.Login)
+// 	if err != nil {
+// 		gCtx.AbortWithError(http.StatusInternalServerError, err)
+// 		return
+// 	}
 
-	err := json.NewDecoder(gCtx.Request.Body).Decode(req)
-	if err != nil {
-		gCtx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
+// 	if req.Login == user.UserName && user.UserPassword == generateHashString(req.Password) {
+// 		// значит проверка пройдена
+// 		// генерируем ему jwt
+// 		token := jwt.NewWithClaims(cfg.JWT.SigningMethod, &ds.JWTClaims{
+// 			StandardClaims: jwt.StandardClaims{
+// 				ExpiresAt: time.Now().Add(cfg.JWT.ExpiresIn).Unix(),
+// 				IssuedAt:  time.Now().Unix(),
+// 				Issuer:    "bitop-admin",
+// 			},
+// 			UserID: user.ID,
+// 			Role:   role.Role(user.UserRole),
+// 		})
+// 		if token == nil {
+// 			gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("пустой токен"))
+// 			return
+// 		}
 
-	if req.Login == login && req.Password == password {
-		// значит проверка пройдена
-		// генерируем ему jwt
-		token := jwt.NewWithClaims(SigningMethod, &ds.JWTClaims{
-			StandardClaims: jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(ExpiresIn).Unix(),
-				IssuedAt:  time.Now().Unix(),
-				Issuer:    "bitop-admin",
-			},
-			UserUUID: uuid.New(), // test uuid
-			// Scopes:   []string{}, // test data
-		})
+// 		strToken, err := token.SignedString([]byte(cfg.JWT.Token))
+// 		if err != nil {
+// 			gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("невозможно создать строку токена"))
+// 			return
+// 		}
 
-		if token == nil {
-			gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("token is nil"))
-			return
-		}
+// 		gCtx.JSON(http.StatusOK, gin.H{
+// 			"ExpiresIn":   cfg.JWT.ExpiresIn,
+// 			"AccessToken": strToken,
+// 			"TokenType":   "Bearer",
+// 		})
+// 	}
 
-		strToken, err := token.SignedString([]byte(jwtToken))
-		if err != nil {
-			gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("cant create str token"))
-			return
-		}
-
-		gCtx.JSON(http.StatusOK, ds.LoginResp{
-			ExpiresIn:   int(ExpiresIn),
-			AccessToken: strToken,
-			TokenType:   "Bearer",
-		})
-	}
-
-	gCtx.AbortWithStatus(http.StatusForbidden) // отдаем 403 ответ в знак того что доступ запрещен
-
-}
+// 	gCtx.AbortWithStatus(http.StatusForbidden) // отдаем 403 ответ в знак того что доступ запрещен
+// }

@@ -17,6 +17,16 @@ func (r *Repository) Select_applications(status string, date time.Time, date_end
 	return &applications, res.Error
 }
 
+func (r *Repository) Select_applications_buyer(status string, date time.Time, date_end time.Time, id_user uint) (*[]ds.Application, error) {
+	var applications []ds.Application
+	if status != "" {
+		res := r.db.Where("id_user = ?", id_user).Where("status = ? AND status != 'delete'", status).Where("date_creation BETWEEN ? AND ?", date, date_end).Find(&applications)
+		return &applications, res.Error
+	}
+	res := r.db.Where("id_user = ?", id_user).Where("status <> ?", "delete").Where("date_creation BETWEEN ? AND ?", date, date_end).Find(&applications)
+	return &applications, res.Error
+}
+
 // вывод одной заявки со списком её услуг
 func (r *Repository) Select_application(id int) (*ds.Application, *[]struct {
 	Title           string
