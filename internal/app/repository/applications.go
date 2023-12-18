@@ -44,13 +44,11 @@ func (r *Repository) Select_application(id int) (*ds.Application, *[]struct {
 	if result.Error != nil {
 		return nil, nil, result.Error
 	}
-	fmt.Println("1111", applications)
 	//ищем м-м заявки
 	res := r.db.Where("Id_Application = ?", id).Find(&flights)
 	if res.Error != nil {
 		return nil, nil, res.Error
 	}
-	fmt.Println("22222", applications)
 
 	var response []struct {
 		Title           string
@@ -81,13 +79,15 @@ func (r *Repository) Select_application(id int) (*ds.Application, *[]struct {
 }
 
 // изменение статуса модератора
-func (r *Repository) Update_application_admin(id uint, status string) error {
+func (r *Repository) Update_application_admin(id uint, status string, id_admin uint) error {
 	app := ds.Application{}
 	res1 := r.db.First(&app, "id = ? AND status = 'formated'", id)
 	if res1.Error != nil {
 		return res1.Error
 	}
 	app.Status = status
+	app.Date_end = time.Now()
+	app.Id_admin = id_admin
 	res := r.db.Save(&app)
 	if res.Error != nil {
 		return res.Error
@@ -103,6 +103,7 @@ func (r *Repository) Update_application_client(id uint, status string) error {
 		return res1.Error
 	}
 	app.Status = status
+	app.Date_formation = time.Now()
 	res := r.db.Save(&app)
 	if res.Error != nil {
 		return res.Error

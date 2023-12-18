@@ -22,6 +22,69 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/application": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удалить космолет из заявки",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Полет"
+                ],
+                "summary": "Удалить космолет из заявки",
+                "parameters": [
+                    {
+                        "description": "Данные для удаления полета из заявки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.delete_flight"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно удалено",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованый пользователь",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Нет доступа",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/application/admin": {
             "put": {
                 "security": [
@@ -165,7 +228,7 @@ const docTemplate = `{
                 "tags": [
                     "Заявки"
                 ],
-                "summary": "Заявок",
+                "summary": "Одна заявка",
                 "parameters": [
                     {
                         "type": "integer",
@@ -313,6 +376,214 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованый пользователь",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Нет доступа",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/flights/cosmodrom/begin": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Установить космодром вылета",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Полет"
+                ],
+                "summary": "Установить космодром вылета",
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованый пользователь",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Нет доступа",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/flights/cosmodrom/end": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Установить космодром прилета",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Полет"
+                ],
+                "summary": "Установить космодром прилета",
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованый пользователь",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Нет доступа",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/flights/cosmodroms": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получить список космодромов",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Полет"
+                ],
+                "summary": "Получить список космодромов",
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованый пользователь",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Нет доступа",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/flights/date": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Установить дату полета",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Полет"
+                ],
+                "summary": "Установить дату полета",
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
                         "schema": {
                             "type": "string"
                         }
@@ -497,8 +768,8 @@ const docTemplate = `{
                 "summary": "Изменение информации о корабле",
                 "parameters": [
                     {
-                        "description": "Обновленная информация о городе",
-                        "name": "updated_city",
+                        "description": "Обновленная информация о корабле",
+                        "name": "updateShip",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -538,7 +809,7 @@ const docTemplate = `{
                 ],
                 "description": "Создание космического корабля",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -549,36 +820,13 @@ const docTemplate = `{
                 "summary": "Создание корабля",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Название корабля",
-                        "name": "Title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Описание корабля",
-                        "name": "Description",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "Изображение корабля",
-                        "name": "Image_url",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ракета-носитель",
-                        "name": "Rocket",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Тип корабля",
-                        "name": "Type",
-                        "in": "formData",
-                        "required": true
+                        "description": "Информация о новом корабле",
+                        "name": "newShip",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Ship"
+                        }
                     }
                 ],
                 "responses": {
@@ -623,7 +871,7 @@ const docTemplate = `{
                 "summary": "Добавление услуги в заявку или создание новой заявки и добавление в нее услуги",
                 "parameters": [
                     {
-                        "description": "Данные для добавления города в поход",
+                        "description": "Данные для добавления корабля в заявку",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -653,6 +901,62 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Доступ запрещен",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ships/image": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Загрузка изображения для корабля",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Корабли"
+                ],
+                "summary": "Загрузка изображения для корабля",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Изображение в формате файла",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Идентификатор корабля",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно добавлено фото",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Ship"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "type": "string"
                         }
@@ -690,6 +994,44 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаление космического корабля",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Корабли"
+                ],
+                "summary": "Удаление космического корабля",
+                "responses": {
+                    "201": {
+                        "description": "Успешное удаление космического корабля",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Ship"
                         }
                     },
                     "400": {
@@ -823,6 +1165,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id_ship": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.delete_flight": {
+            "type": "object",
+            "properties": {
+                "idApp": {
+                    "type": "integer"
+                },
+                "idShip": {
                     "type": "integer"
                 }
             }

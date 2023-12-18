@@ -4,6 +4,7 @@ import (
 	"awesomeProject/internal/app/ds"
 	"awesomeProject/internal/app/role"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -18,6 +19,7 @@ const jwtPrefix = "Bearer "
 func (h *Handler) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := gCtx.GetHeader("Authorization")
+		fmt.Println(jwtStr)
 		if !strings.HasPrefix(jwtStr, jwtPrefix) { // если нет префикса то нас дурят!
 			gCtx.AbortWithStatus(http.StatusForbidden) // отдаем что нет доступа
 			gCtx.JSON(http.StatusForbidden, gin.H{"error": "jwt token не найден"})

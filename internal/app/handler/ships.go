@@ -2,6 +2,7 @@ package handler
 
 import (
 	"awesomeProject/internal/app/ds"
+	"awesomeProject/internal/app/role"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -23,13 +24,24 @@ import (
 // @Failure 500 {object} string "Внутренняя ошибка сервера"
 // @Router /api/ships [get]
 func (h *Handler) Get_ships(c *gin.Context) {
+	userId, exists := c.Get("user_id")
+	if !exists {
+		search := c.Query("search")
+		ships, app, err := h.Repository.Select_ships(search, 0)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": ships, "app": app})
+		return
+	}
 	search := c.Query("search")
-	ships, err := h.Repository.Select_ships(search)
+	ships, app, err := h.Repository.Select_ships(search, userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": ships})
+	c.JSON(http.StatusOK, gin.H{"data": ships, "app": app})
 	return
 }
 
@@ -67,14 +79,10 @@ func (h *Handler) Get_ship(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Tags Корабли
 // @Description Создание космического корабля
-// @Accept multipart/form-data
+// @Accept json
 // @Security ApiKeyAuth
 // @Produce json
-// @Param Title formData string true "Название корабля"
-// @Param Description formData string false "Описание корабля"
-// @Param Image_url formData file false "Изображение корабля"
-// @Param Rocket formData string false "Ракета-носитель"
-// @Param Type formData string true "Тип корабля"
+// @Param newShip body ds.Ship true "Информация о новом корабле"
 // @Success 201 {object} ds.Ship "Успешное создание космического корабля"
 // @Failure 400 {object} string "Неверный запрос"
 // @Failure 500 {object} string "Внутренняя ошибка сервера"
@@ -113,7 +121,7 @@ func (h *Handler) Post_ship(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body ds.ShipToAppReq true "Данные для добавления города в поход"
+// @Param request body ds.ShipToAppReq true "Данные для добавления корабля в заявку"
 // @Success 200 {object} string "Успешное добавление услуги в заявку"
 // @Failure 400 {object} string "Неверный запрос"
 // @Failure 401 {object} string "Ошибка авторизации"
@@ -166,7 +174,7 @@ func (h *Handler) Post_application(c *gin.Context) {
 // @Description Изменение информации о корабле
 // @Security ApiKeyAuth
 // @Produce json
-// @Param updated_city body ds.Ship true "Обновленная информация о городе"
+// @Param updateShip body ds.Ship true "Обновленная информация о корабле"
 // @Success 201 {object} ds.Ship "Успешное создание космического корабля"
 // @Failure 400 {object} string "Неверный запрос"
 // @Failure 500 {object} string "Внутренняя ошибка сервера"
@@ -196,8 +204,28 @@ func (h *Handler) Put_ship(c *gin.Context) {
 	return
 }
 
-// логически удаляет космический корабль
+// Delete_ship godoc
+// @Summary Удаление космического корабля
+// @Security ApiKeyAuth
+// @Tags Корабли
+// @Description Удаление космического корабля
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 201 {object} ds.Ship "Успешное удаление космического корабля"
+// @Failure 400 {object} string "Неверный запрос"
+// @Failure 500 {object} string "Внутренняя ошибка сервера"
+// @Router /api/ships/{id} [delete]
 func (h *Handler) Delete_ship(c *gin.Context) {
+	userRole, exists := c.Get("user_role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+		return
+	}
+	if userRole != role.Admin && userRole != role.Manager {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Доступ запрещен"})
+		return
+	}
+
 	id_param := c.Param("id")
 	id, err := strconv.Atoi(id_param)
 	if err != nil {
@@ -223,6 +251,19 @@ func (h *Handler) uploadInMinio(file *multipart.File, header *multipart.FileHead
 	return newUrl, nil
 }
 
+// AddImage godoc
+// @Summary Загрузка изображения для корабля
+// @Security ApiKeyAuth
+// @Tags Корабли
+// @Description Загрузка изображения для корабля
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "Изображение в формате файла"
+// @Param id formData string true "Идентификатор корабля"
+// @Success 200 {object} ds.Ship "Успешно добавлено фото"
+// @Failure 400 {object} string "Неверный запрос"
+// @Failure 500 {object} string "Внутренняя ошибка сервера"
+// @Router /api/ships/image [put]
 func (h *Handler) AddImage(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	id := c.Request.FormValue("id")

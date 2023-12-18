@@ -56,7 +56,7 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.PUT("/api/flights/date", h.WithAuthCheck(role.Buyer), h.put_flight_date)
 	r.PUT("/api/flights/cosmodrom/begin", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_begin)
 	r.PUT("/api/flights/cosmodrom/end", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_end)
-	r.DELETE("/api/flights/application:id_application/ship:id_ship", h.WithAuthCheck(role.Buyer), h.delete_flight)
+	r.DELETE("/api/flights/application", h.WithAuthCheck(role.Buyer), h.delete_flight)
 
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")

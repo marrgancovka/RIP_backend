@@ -10,14 +10,24 @@ import (
 const default_image_url = "http://localhost:9000/spacey/1.png"
 
 // возвращает список космических кораблей
-func (r *Repository) Select_ships(search string) (*[]ds.Ship, error) {
+func (r *Repository) Select_ships(search string, id_user uint) (*[]ds.Ship, int, error) {
 	var ships []ds.Ship
+	var app ds.Application
+	var id_app = 0
+	if id_user != 0 {
+		res := r.db.Where("id_user = ? AND status = ?", id_user, "created").First(&app)
+		if res.Error == nil {
+			id_app = int(app.ID)
+		}
+	}
 	if search != "" {
 		res := r.db.Where("Is_delete = ?", "False").Where("LOWER(Title) LIKE ?", "%"+strings.ToLower(search)+"%").Find(&ships)
-		return &ships, res.Error
+
+		return &ships, id_app, res.Error
 	}
+
 	res := r.db.Where("Is_delete = ?", "False").Find(&ships)
-	return &ships, res.Error
+	return &ships, id_app, res.Error
 }
 
 // возвращает информацию о космическом корабле по айди
@@ -30,6 +40,7 @@ func (r *Repository) Select_ship(id int) (*ds.Ship, error) {
 // добавление нового космического корабля
 func (r *Repository) Insert_ship(ship *ds.Ship) error {
 	ship.Image_url = default_image_url
+	ship.Is_delete = false
 
 	res := r.db.Create(&ship)
 	return res.Error

@@ -125,7 +125,7 @@ func (h *Handler) get_application(c *gin.Context) {
 // @Failure 500 {object} string "Внутренняя ошибка сервера"
 // @Router /api/application/admin [put]
 func (h *Handler) put_application_admin(c *gin.Context) {
-	_, existsUser := c.Get("user_id")
+	userId, existsUser := c.Get("user_id")
 	userRole, existsUser := c.Get("user_role")
 	if !existsUser {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "пользлватель не авторизован"})
@@ -145,7 +145,7 @@ func (h *Handler) put_application_admin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Поменять статус можно только на 'принят' и 'отменен'"})
 		return
 	}
-	err2 := h.Repository.Update_application_admin(data.ID, data.Status)
+	err2 := h.Repository.Update_application_admin(data.ID, data.Status, userId.(uint))
 	if err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
 		return
