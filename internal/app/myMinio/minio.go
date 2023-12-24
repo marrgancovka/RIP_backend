@@ -7,7 +7,7 @@ import (
 
 const (
 	BucketName = "spacey"
-	MinioHost  = "localhost:9000"
+	MinioHost  = "192.168.1.3:9000"
 )
 
 func NewMinioClient(logger *logrus.Logger) *minio.Client {

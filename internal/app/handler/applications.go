@@ -74,6 +74,14 @@ func (h *Handler) get_applications(c *gin.Context) {
 	return
 }
 
+type ApplicationService struct {
+	ID             int
+	Title          string
+	CosmodromBegin string
+	CosmodromEnd   string
+	Date           time.Time
+}
+
 // Application godoc
 // @Summary Одна заявка
 // @Description Получение заявки с услугами
@@ -101,7 +109,7 @@ func (h *Handler) get_application(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}
-	application, flights, err2 := h.Repository.Select_application(id)
+	application, flights, err2 := h.Repository.SelectApplication(id)
 	if err2 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
 		return

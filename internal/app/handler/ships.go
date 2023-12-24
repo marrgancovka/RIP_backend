@@ -26,6 +26,7 @@ import (
 func (h *Handler) Get_ships(c *gin.Context) {
 	userId, exists := c.Get("user_id")
 	if !exists {
+		fmt.Println("not exists")
 		search := c.Query("search")
 		ships, app, err := h.Repository.Select_ships(search, 0)
 		if err != nil {

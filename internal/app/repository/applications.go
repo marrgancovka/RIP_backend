@@ -20,62 +20,79 @@ func (r *Repository) Select_applications(status string, date time.Time, date_end
 func (r *Repository) Select_applications_buyer(status string, date time.Time, date_end time.Time, id_user uint) (*[]ds.Application, error) {
 	var applications []ds.Application
 	if status != "" {
-		res := r.db.Where("id_user = ?", id_user).Where("status = ? AND status != 'delete'", status).Where("date_creation BETWEEN ? AND ?", date, date_end).Find(&applications)
+		res := r.db.Where("id_user = ?", id_user).Where("status = ? AND status != 'delete'", status).Where("date_creation BETWEEN ? AND ?", date, date_end).Order("date_creation DESC").Find(&applications)
 		return &applications, res.Error
 	}
-	res := r.db.Where("id_user = ?", id_user).Where("status <> ?", "delete").Where("date_creation BETWEEN ? AND ?", date, date_end).Find(&applications)
+	res := r.db.Where("id_user = ?", id_user).Where("status <> ?", "delete").Where("date_creation BETWEEN ? AND ?", date, date_end).Order("date_creation DESC").Find(&applications)
 	return &applications, res.Error
 }
 
-// вывод одной заявки со списком её услуг
-func (r *Repository) Select_application(id int) (*ds.Application, *[]struct {
-	Title           string
-	Cosmodrom_begin string
-	Cosmodrom_end   string
-	Date            time.Time
-}, error) {
-	var applications ds.Application
+type ApplicationService struct {
+	ID             int
+	Title          string
+	CosmodromBegin string
+	CosmodromEnd   string
+	Date           time.Time
+}
+
+func (r *Repository) SelectApplication(id int) (*ds.Application, []ApplicationService, error) {
+	var application ds.Application
 	var flights []ds.Flights
-	var ship ds.Ship
-	var cosmodrom ds.Cosmodroms
 
-	//ищем такую заявку
-	result := r.db.First(&applications, "id =?", id)
-	if result.Error != nil {
-		return nil, nil, result.Error
-	}
-	//ищем м-м заявки
-	res := r.db.Where("Id_Application = ?", id).Find(&flights)
-	if res.Error != nil {
-		return nil, nil, res.Error
+	// Ищем заявку
+	if err := r.db.First(&application, "id = ?", id).Error; err != nil {
+		return nil, nil, fmt.Errorf("ошибка при поиске заявки: %v", err)
 	}
 
-	var response []struct {
-		Title           string
-		Cosmodrom_begin string
-		Cosmodrom_end   string
-		Date            time.Time
+	// Ищем связанные полеты
+	if err := r.db.Where("id_application = ?", id).Order("id_ship").Find(&flights).Error; err != nil {
+		return nil, nil, fmt.Errorf("ошибка при поиске полетов: %v", err)
 	}
+
+	response := make([]ApplicationService, len(flights))
+
 	for i, fl := range flights {
-		var entry struct {
-			Title           string
-			Cosmodrom_begin string
-			Cosmodrom_end   string
-			Date            time.Time
+		ship, err := r.getShipByID(int(fl.Id_Ship))
+		if err != nil {
+			return nil, nil, fmt.Errorf("ошибка при получении корабля: %v", err)
 		}
-		response = append(response, entry)
-		r.db.Table("ships").Select("title").Where("id = ?", fl.Id_Ship).First(&ship)
-		response[i].Title = ship.Title
-		r.db.Table("cosmodroms").Select("title").Where("id = ?", fl.Id_Cosmodrom_Begin).First(&cosmodrom)
-		response[i].Cosmodrom_begin = cosmodrom.Title
-		r.db.Table("cosmodroms").Select("title").Where("id = ?", fl.Id_cosmodrom_End).First(&cosmodrom)
-		response[i].Cosmodrom_end = cosmodrom.Title
-		response[i].Date = fl.Date_Flight
-	}
-	fmt.Println("33333", applications)
-	fmt.Println(response)
 
-	return &applications, &response, nil
+		cosmodromBegin, err := r.getCosmodromTitleByID(int(fl.Id_Cosmodrom_Begin))
+		if err != nil {
+			return nil, nil, fmt.Errorf("ошибка при получении космодрома (начало): %v", err)
+		}
+
+		cosmodromEnd, err := r.getCosmodromTitleByID(int(fl.Id_cosmodrom_End))
+		if err != nil {
+			return nil, nil, fmt.Errorf("ошибка при получении космодрома (конец): %v", err)
+		}
+
+		response[i] = ApplicationService{
+			ID:             int(ship.ID),
+			Title:          ship.Title,
+			CosmodromBegin: cosmodromBegin,
+			CosmodromEnd:   cosmodromEnd,
+			Date:           fl.Date_Flight,
+		}
+	}
+
+	return &application, response, nil
+}
+
+func (r *Repository) getShipByID(id int) (*ds.Ship, error) {
+	var ship ds.Ship
+	if err := r.db.Select("id, title").Where("id = ?", id).First(&ship).Error; err != nil {
+		return nil, err
+	}
+	return &ship, nil
+}
+
+func (r *Repository) getCosmodromTitleByID(id int) (string, error) {
+	var cosmodrom ds.Cosmodroms
+	if err := r.db.Table("cosmodroms").Select("title").Where("id = ?", id).First(&cosmodrom).Error; err != nil {
+		return "", err
+	}
+	return cosmodrom.Title, nil
 }
 
 // изменение статуса модератора

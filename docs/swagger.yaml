@@ -7,6 +7,19 @@ definitions:
       status:
         type: string
     type: object
+  ds.Flights:
+    properties:
+      date_Flight:
+        type: string
+      id_Application:
+        type: integer
+      id_Cosmodrom_Begin:
+        type: integer
+      id_Ship:
+        type: integer
+      id_cosmodrom_End:
+        type: integer
+    type: object
   ds.LoginReq:
     properties:
       login:
@@ -330,6 +343,13 @@ paths:
       consumes:
       - application/json
       description: Установить космодром вылета
+      parameters:
+      - description: Данные для удаления полета из заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Flights'
       produces:
       - application/json
       responses:
@@ -429,6 +449,13 @@ paths:
       consumes:
       - application/json
       description: Установить дату полета
+      parameters:
+      - description: Данные для удаления полета из заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Flights'
       produces:
       - application/json
       responses:

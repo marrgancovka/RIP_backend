@@ -3,6 +3,7 @@ package handler
 import (
 	"awesomeProject/internal/app/ds"
 	"awesomeProject/internal/app/role"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -37,6 +38,7 @@ func (h *Handler) get_cosmodroms(c *gin.Context) {
 // @Tags Полет
 // @Accept json
 // @Produce json
+// @Param request body ds.Flights true "Данные для удаления полета из заявки"
 // @Security ApiKeyAuth
 // @Success 200 {string} ds.Flights "Успешно"
 // @Failure 400 {object} string "Неверный запрос"
@@ -64,6 +66,7 @@ func (h *Handler) put_flight_date(c *gin.Context) {
 
 	res, err2 := h.Repository.Update_flight_date(flight.Id_Application, flight.Id_Ship, flight.Date_Flight)
 	if err2 != nil {
+		fmt.Println("nen")
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
 		return
 	}
@@ -77,6 +80,7 @@ func (h *Handler) put_flight_date(c *gin.Context) {
 // @Tags Полет
 // @Accept json
 // @Produce json
+// @Param request body ds.Flights true "Данные для удаления полета из заявки"
 // @Security ApiKeyAuth
 // @Success 200 {string} ds.Flights "Успешно"
 // @Failure 400 {object} string "Неверный запрос"
@@ -85,6 +89,7 @@ func (h *Handler) put_flight_date(c *gin.Context) {
 // @Failure 500 {object} string "Внутренняя ошибка сервера"
 // @Router /api/flights/cosmodrom/begin [put]
 func (h *Handler) put_cosmodrom_begin(c *gin.Context) {
+	// dateString := "0001-01-01T00:00:00Z"
 	userRole, exists := c.Get("user_role")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
@@ -98,6 +103,7 @@ func (h *Handler) put_cosmodrom_begin(c *gin.Context) {
 	flight := ds.Flights{}
 	err := c.BindJSON(&flight)
 	if err != nil {
+		fmt.Println("тут ошибка")
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}
@@ -176,6 +182,7 @@ func (h *Handler) delete_flight(c *gin.Context) {
 
 	ship_param := c.Param("id_ship")
 	app_param := c.Param("id_application")
+	fmt.Println(ship_param, app_param)
 	ship, err := strconv.Atoi(ship_param)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})

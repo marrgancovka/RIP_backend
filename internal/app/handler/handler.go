@@ -47,16 +47,16 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.DELETE("/api/ships/:id", h.WithAuthCheck(role.Admin, role.Manager), h.Delete_ship)
 
 	r.GET("/api/applications", h.WithAuthCheck(role.Admin, role.Buyer, role.Manager), h.get_applications)
-	r.GET("/api/applications/:id", h.WithAuthCheck(role.Admin, role.Manager), h.get_application)
+	r.GET("/api/application/:id", h.WithAuthCheck(role.Admin, role.Manager, role.Buyer), h.get_application)
 	r.PUT("/api/application/admin", h.WithAuthCheck(role.Admin, role.Manager), h.put_application_admin)
 	r.PUT("/api/application/client", h.WithAuthCheck(role.Buyer), h.put_application_client)
-	r.DELETE("/api/application/:id", h.WithAuthCheck(role.Admin, role.Manager), h.delete_application)
+	r.DELETE("/api/application/:id", h.WithAuthCheck(role.Buyer), h.delete_application)
 
 	r.GET("/api/flights/cosmodroms", h.WithoutAuth(role.Admin, role.Buyer, role.Manager), h.get_cosmodroms)
 	r.PUT("/api/flights/date", h.WithAuthCheck(role.Buyer), h.put_flight_date)
 	r.PUT("/api/flights/cosmodrom/begin", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_begin)
 	r.PUT("/api/flights/cosmodrom/end", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_end)
-	r.DELETE("/api/flights/application", h.WithAuthCheck(role.Buyer), h.delete_flight)
+	r.DELETE("/api/flights/application/:id_application/:id_ship", h.WithAuthCheck(role.Buyer), h.delete_flight)
 
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")

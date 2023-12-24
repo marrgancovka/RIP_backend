@@ -54,7 +54,6 @@ func (r *Repository) Insert_application(id_user uint, id_ship uint) error {
 	if app.ID == 0 {
 		newApp := ds.Application{
 			Id_user:       id_user,
-			Id_admin:      1,
 			Status:        "created",
 			Date_creation: time.Now(),
 		}

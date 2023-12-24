@@ -425,6 +425,17 @@ const docTemplate = `{
                     "Полет"
                 ],
                 "summary": "Установить космодром вылета",
+                "parameters": [
+                    {
+                        "description": "Данные для удаления полета из заявки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Flights"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Успешно",
@@ -581,6 +592,17 @@ const docTemplate = `{
                     "Полет"
                 ],
                 "summary": "Установить дату полета",
+                "parameters": [
+                    {
+                        "description": "Данные для удаления полета из заявки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Flights"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Успешно",
@@ -1086,6 +1108,26 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "ds.Flights": {
+            "type": "object",
+            "properties": {
+                "date_Flight": {
+                    "type": "string"
+                },
+                "id_Application": {
+                    "type": "integer"
+                },
+                "id_Cosmodrom_Begin": {
+                    "type": "integer"
+                },
+                "id_Ship": {
+                    "type": "integer"
+                },
+                "id_cosmodrom_End": {
+                    "type": "integer"
                 }
             }
         },

@@ -100,16 +100,16 @@ func (h *Handler) Login(gCtx *gin.Context) {
 		gCtx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
 	user, err := h.Repository.GetUserByLogin(req.Login)
 	if err != nil {
 		gCtx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-
+	fmt.Println(user)
 	if req.Login == user.UserName && user.UserPassword == generateHashString(req.Password) {
 		// значит проверка пройдена
 		// генерируем ему jwt
+		fmt.Println("ok")
 		token := jwt.NewWithClaims(cfg.JWT.SigningMethod, &ds.JWTClaims{
 			StandardClaims: jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(cfg.JWT.ExpiresIn).Unix(),
@@ -119,6 +119,8 @@ func (h *Handler) Login(gCtx *gin.Context) {
 			UserID: user.ID,
 			Role:   role.Role(user.UserRole),
 		})
+		fmt.Println(token)
+
 		if token == nil {
 			gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("пустой токен"))
 			return
@@ -134,6 +136,7 @@ func (h *Handler) Login(gCtx *gin.Context) {
 			"ExpiresIn":   cfg.JWT.ExpiresIn,
 			"AccessToken": strToken,
 			"TokenType":   "Bearer",
+			"Role":        user.UserRole,
 		})
 	}
 
