@@ -10,14 +10,24 @@ import (
 const default_image_url = "http://localhost:9000/spacey/1.png"
 
 // возвращает список космических кораблей
-func (r *Repository) Select_ships(search string) (*[]ds.Ship, error) {
+func (r *Repository) Select_ships(search string, id_user uint) (*[]ds.Ship, int, error) {
 	var ships []ds.Ship
+	var app ds.Application
+	var id_app = 0
+	if id_user != 0 {
+		res := r.db.Where("id_user = ? AND status = ?", id_user, "created").First(&app)
+		if res.Error == nil {
+			id_app = int(app.ID)
+		}
+	}
 	if search != "" {
 		res := r.db.Where("Is_delete = ?", "False").Where("LOWER(Title) LIKE ?", "%"+strings.ToLower(search)+"%").Find(&ships)
-		return &ships, res.Error
+
+		return &ships, id_app, res.Error
 	}
+
 	res := r.db.Where("Is_delete = ?", "False").Find(&ships)
-	return &ships, res.Error
+	return &ships, id_app, res.Error
 }
 
 // возвращает информацию о космическом корабле по айди
@@ -30,23 +40,20 @@ func (r *Repository) Select_ship(id int) (*ds.Ship, error) {
 // добавление нового космического корабля
 func (r *Repository) Insert_ship(ship *ds.Ship) error {
 	ship.Image_url = default_image_url
+	ship.Is_delete = false
 
 	res := r.db.Create(&ship)
 	return res.Error
 }
 
 // добавление космического корабля в заявку и создание заявки если ее не было
-func (r *Repository) Insert_application(request *struct {
-	Id_Ship uint
-	Id_user uint
-}) error {
+func (r *Repository) Insert_application(id_user uint, id_ship uint) error {
 	var app ds.Application
-	r.db.Where("id_user = ?", request.Id_user).Where("status = ?", "created").First(&app)
+	r.db.Where("id_user = ?", id_user).Where("status = ?", "created").First(&app)
 
 	if app.ID == 0 {
 		newApp := ds.Application{
-			Id_user:       request.Id_user,
-			Id_admin:      1,
+			Id_user:       id_user,
 			Status:        "created",
 			Date_creation: time.Now(),
 		}
@@ -57,7 +64,7 @@ func (r *Repository) Insert_application(request *struct {
 		app = newApp
 	}
 	flight := ds.Flights{
-		Id_Ship:            request.Id_Ship,
+		Id_Ship:            id_ship,
 		Id_Application:     app.ID,
 		Id_Cosmodrom_Begin: 1,
 		Id_cosmodrom_End:   1,

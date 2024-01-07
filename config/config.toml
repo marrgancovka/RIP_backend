@@ -1,2 +1,9 @@
-ServiceHost = "0.0.0.0" # просто ключ значение
+ServiceHost = "localhost" # просто ключ значение
 ServicePort = 8080
+
+# НАСТРОЙКИ РЕДИСКИ
+[Redis]
+
+# Таймауты в миллисекундах
+DialTimeout = "10s"
+ReadTimeout = "10s"

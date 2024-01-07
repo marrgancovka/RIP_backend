@@ -2,12 +2,26 @@ package handler
 
 import (
 	"awesomeProject/internal/app/ds"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
+// Get_cosmodroms godoc
+// @Summary Получить список космодромов
+// @Description Получить список космодромов
+// @Tags Полет
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {string} ds.Cosmodroms "Успешно"
+// @Failure 400 {object} string "Неверный запрос"
+// @Failure 401 {object} string "Неавторизованый пользователь"
+// @Failure 403 {object} string "Нет доступа"
+// @Failure 500 {object} string "Внутренняя ошибка сервера"
+// @Router /api/flights/cosmodroms [get]
 func (h *Handler) get_cosmodroms(c *gin.Context) {
 	cosmodroms, err := h.Repository.Select_cosmodroms()
 	if err != nil {
@@ -17,57 +31,149 @@ func (h *Handler) get_cosmodroms(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": cosmodroms})
 }
 
-func (h *Handler) put_flight_date(c *gin.Context) {
+// put_data_flights godoc
+// @Summary Изменить данные о полете
+// @Description Изменить данные о полете
+// @Tags Полет
+// @Accept json
+// @Produce json
+// @Param request body ds.Flights true "Данные для изменения полета"
+// @Security ApiKeyAuth
+// @Success 200 {string} ds.Flights "Успешно"
+// @Failure 400 {object} string "Неверный запрос"
+// @Failure 401 {object} string "Неавторизованый пользователь"
+// @Failure 403 {object} string "Нет доступа"
+// @Failure 500 {object} string "Внутренняя ошибка сервера"
+// @Router /api/flights [put]
+func (h *Handler) put_data_flights(c *gin.Context) {
 	flight := ds.Flights{}
 	err := c.BindJSON(&flight)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}
-	err2 := h.Repository.Update_flight_date(flight.Id_Application, flight.Id_Ship, flight.Date_Flight)
+
+	_, exists := c.Get("user_role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+		return
+	}
+
+	res, err2 := h.Repository.Update_flight_date(flight.Id_Application, flight.Id_Ship, flight.Date_Flight, flight.Id_Cosmodrom_Begin, flight.Id_cosmodrom_End)
 	if err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Дата полета изменена"})
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Дата полета изменена", "flight": res})
 	return
 }
 
-func (h *Handler) put_cosmodrom_begin(c *gin.Context) {
-	flight := ds.Flights{}
-	err := c.BindJSON(&flight)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
-		return
-	}
-	err2 := h.Repository.Update_cosmodrom_begin(flight.Id_Application, flight.Id_Ship, flight.Id_Cosmodrom_Begin)
-	if err2 != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Космодром вылета изменен"})
-	return
-}
+// // Cosmodrom_begin_put godoc
+// // @Summary Установить космодром вылета
+// // @Description Установить космодром вылета
+// // @Tags Полет
+// // @Accept json
+// // @Produce json
+// // @Param request body ds.Flights true "Данные для удаления полета из заявки"
+// // @Security ApiKeyAuth
+// // @Success 200 {string} ds.Flights "Успешно"
+// // @Failure 400 {object} string "Неверный запрос"
+// // @Failure 401 {object} string "Неавторизованый пользователь"
+// // @Failure 403 {object} string "Нет доступа"
+// // @Failure 500 {object} string "Внутренняя ошибка сервера"
+// // @Router /api/flights/cosmodrom/begin [put]
+// func (h *Handler) put_cosmodrom_begin(c *gin.Context) {
+// 	// dateString := "0001-01-01T00:00:00Z"
+// 	userRole, exists := c.Get("user_role")
+// 	if !exists {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+// 		return
+// 	}
+// 	if userRole != role.Buyer {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Изменять информацию о полете может только создатель заявки"})
+// 		return
+// 	}
 
-func (h *Handler) put_cosmodrom_end(c *gin.Context) {
-	flight := ds.Flights{}
-	err := c.BindJSON(&flight)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
-		return
-	}
-	err2 := h.Repository.Update_cosmodrom_end(flight.Id_Application, flight.Id_Ship, flight.Id_cosmodrom_End)
-	if err2 != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Космодром прилета изменен"})
-	return
-}
+// 	flight := ds.Flights{}
+// 	err := c.BindJSON(&flight)
+// 	if err != nil {
+// 		fmt.Println("тут ошибка")
+// 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
+// 		return
+// 	}
+// 	res, err2 := h.Repository.Update_cosmodrom_begin(flight.Id_Application, flight.Id_Ship, flight.Id_Cosmodrom_Begin)
+// 	if err2 != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Космодром вылета изменен", "flight": res})
+// 	return
+// }
 
+// // Cosmodrom_end_put godoc
+// // @Summary Установить космодром прилета
+// // @Description Установить космодром прилета
+// // @Tags Полет
+// // @Accept json
+// // @Produce json
+// // @Security ApiKeyAuth
+// // @Success 200 {string} ds.Flights "Успешно"
+// // @Failure 400 {object} string "Неверный запрос"
+// // @Failure 401 {object} string "Неавторизованый пользователь"
+// // @Failure 403 {object} string "Нет доступа"
+// // @Failure 500 {object} string "Внутренняя ошибка сервера"
+// // @Router /api/flights/cosmodrom/end [put]
+// func (h *Handler) put_cosmodrom_end(c *gin.Context) {
+// 	userRole, exists := c.Get("user_role")
+// 	if !exists {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+// 		return
+// 	}
+// 	if userRole != role.Buyer {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Изменять информацию о полете может только создатель заявки"})
+// 		return
+// 	}
+
+// 	flight := ds.Flights{}
+// 	err := c.BindJSON(&flight)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
+// 		return
+// 	}
+// 	res, err2 := h.Repository.Update_cosmodrom_end(flight.Id_Application, flight.Id_Ship, flight.Id_cosmodrom_End)
+// 	if err2 != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err2.Error()})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{"status": "success", "comment": "Космодром прилета изменен", "flight": res})
+// 	return
+// }
+
+// Flight_delete godoc
+// @Summary Удалить космолет из заявки
+// @Description Удалить космолет из заявки
+// @Tags Полет
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body ds.delete_flight true "Данные для удаления полета из заявки"
+// @Success 200 {string} string "Успешно удалено"
+// @Failure 400 {object} string "Неверный запрос"
+// @Failure 401 {object} string "Неавторизованый пользователь"
+// @Failure 403 {object} string "Нет доступа"
+// @Failure 500 {object} string "Внутренняя ошибка сервера"
+// @Router /api/application [delete]
 func (h *Handler) delete_flight(c *gin.Context) {
+	_, exists := c.Get("user_role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+		return
+	}
+
 	ship_param := c.Param("id_ship")
 	app_param := c.Param("id_application")
+	fmt.Println(ship_param, app_param)
 	ship, err := strconv.Atoi(ship_param)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})

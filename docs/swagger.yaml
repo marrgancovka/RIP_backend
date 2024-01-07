@@ -1,0 +1,789 @@
+basePath: /
+definitions:
+  ds.AppStatus:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+  ds.Flights:
+    properties:
+      date_Flight:
+        type: string
+      id_Application:
+        type: integer
+      id_Cosmodrom_Begin:
+        type: integer
+      id_Ship:
+        type: integer
+      id_cosmodrom_End:
+        type: integer
+    type: object
+  ds.LoginReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  ds.LoginResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  ds.RegisterReq:
+    properties:
+      name:
+        description: лучше назвать то же самое что login
+        type: string
+      pass:
+        type: string
+      phone:
+        type: string
+      secondName:
+        type: string
+      userName:
+        type: string
+    type: object
+  ds.Ship:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      is_delete:
+        type: boolean
+      rocket:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  ds.ShipToAppReq:
+    properties:
+      id_ship:
+        type: integer
+    type: object
+  ds.delete_flight:
+    properties:
+      idApp:
+        type: integer
+      idShip:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: bitop@spatecon.ru
+    name: API Support
+    url: https://vk.com/bmstu_schedule
+  description: Starship's flights
+  license:
+    name: AS IS (NO WARRANTY)
+  title: SpaceY
+  version: "1.0"
+paths:
+  /api/application:
+    delete:
+      consumes:
+      - application/json
+      description: Удалить космолет из заявки
+      parameters:
+      - description: Данные для удаления полета из заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.delete_flight'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно удалено
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить космолет из заявки
+      tags:
+      - Полет
+  /api/application/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Изменение статуса заявки на удален
+      parameters:
+      - default: 1
+        description: ID заявки
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Меняем статус заявки на удален
+      tags:
+      - Заявки
+    get:
+      consumes:
+      - application/json
+      description: Получение заявки с услугами
+      parameters:
+      - default: 1
+        description: ID заявки
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Одна заявка
+      tags:
+      - Заявки
+  /api/application/admin:
+    put:
+      consumes:
+      - application/json
+      description: Изменение статуса заявки на принят или отклонен
+      parameters:
+      - description: Данные для обновления статуса заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.AppStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Меняем статус заявки на принят или отклонен
+      tags:
+      - Заявки
+  /api/application/client:
+    put:
+      consumes:
+      - application/json
+      description: Изменение статуса заявки на сформирован
+      parameters:
+      - description: Данные для обновления статуса заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.AppStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Меняем статус заявки на сформирован
+      tags:
+      - Заявки
+  /api/applications:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка заявок
+      parameters:
+      - description: Фильтрация по статусу
+        in: query
+        name: status
+        type: string
+      - description: Фильтрация по дате начала
+        in: query
+        name: date
+        type: string
+      - description: Фильтрация по дате конца
+        in: query
+        name: date_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Список заявок
+      tags:
+      - Заявки
+  /api/flights/cosmodrom/begin:
+    put:
+      consumes:
+      - application/json
+      description: Установить космодром вылета
+      parameters:
+      - description: Данные для удаления полета из заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Flights'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Установить космодром вылета
+      tags:
+      - Полет
+  /api/flights/cosmodrom/end:
+    put:
+      consumes:
+      - application/json
+      description: Установить космодром прилета
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Установить космодром прилета
+      tags:
+      - Полет
+  /api/flights/cosmodroms:
+    get:
+      consumes:
+      - application/json
+      description: Получить список космодромов
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список космодромов
+      tags:
+      - Полет
+  /api/flights/date:
+    put:
+      consumes:
+      - application/json
+      description: Установить дату полета
+      parameters:
+      - description: Данные для удаления полета из заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Flights'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неавторизованый пользователь
+          schema:
+            type: string
+        "403":
+          description: Нет доступа
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Установить дату полета
+      tags:
+      - Полет
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя.
+      parameters:
+      - description: Детали входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная аутентификация
+          schema:
+            $ref: '#/definitions/ds.LoginResp'
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Неверные учетные данные
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Аутентификация пользователя
+      tags:
+      - Пользователи
+  /api/logout:
+    get:
+      consumes:
+      - application/json
+      description: Завершение сеанса текущего пользователя.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный выход
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Выход пользователя
+      tags:
+      - Пользователи
+  /api/ships:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка кораблей
+      parameters:
+      - description: Фильтрация поиска
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Список кораблей
+      tags:
+      - Корабли
+    post:
+      consumes:
+      - application/json
+      description: Создание космического корабля
+      parameters:
+      - description: Информация о новом корабле
+        in: body
+        name: newShip
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Ship'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание космического корабля
+          schema:
+            $ref: '#/definitions/ds.Ship'
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      - ApiKeyAuth: []
+      summary: Создание корабля
+      tags:
+      - Корабли
+    put:
+      description: Изменение информации о корабле
+      parameters:
+      - description: Обновленная информация о корабле
+        in: body
+        name: updateShip
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Ship'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание космического корабля
+          schema:
+            $ref: '#/definitions/ds.Ship'
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      - ApiKeyAuth: []
+      summary: Изменение информации о корабле
+      tags:
+      - Корабли
+  /api/ships/{id}:
+    delete:
+      description: Удаление космического корабля
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное удаление космического корабля
+          schema:
+            $ref: '#/definitions/ds.Ship'
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      - ApiKeyAuth: []
+      summary: Удаление космического корабля
+      tags:
+      - Корабли
+    get:
+      consumes:
+      - application/json
+      description: Получение информации о корабле по его идентификатору
+      parameters:
+      - default: 1
+        description: ID корабля
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный запрос
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о корабле
+      tags:
+      - Корабли
+  /api/ships/application:
+    post:
+      consumes:
+      - application/json
+      description: Создание или обновление заявки с добавлением услуги
+      parameters:
+      - description: Данные для добавления корабля в заявку
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.ShipToAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное добавление услуги в заявку
+          schema:
+            type: string
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "401":
+          description: Ошибка авторизации
+          schema:
+            type: string
+        "403":
+          description: Доступ запрещен
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление услуги в заявку или создание новой заявки и добавление в
+        нее услуги
+      tags:
+      - Корабли
+  /api/ships/image:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Загрузка изображения для корабля
+      parameters:
+      - description: Изображение в формате файла
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Идентификатор корабля
+        in: formData
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно добавлено фото
+          schema:
+            $ref: '#/definitions/ds.Ship'
+        "400":
+          description: Неверный запрос
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Загрузка изображения для корабля
+      tags:
+      - Корабли
+  /api/sign_up:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация нового пользователя.
+      parameters:
+      - description: Детали регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.RegisterReq'
+      produces:
+      - application/json
+      responses: {}
+      summary: Регистрация пользователя
+      tags:
+      - Пользователи
+schemes:
+- http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
