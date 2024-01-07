@@ -74,7 +74,7 @@ func NewConfig() (*Config, error) {
 	log.Info("config parsed")
 
 	cfg.JWT.Token = "test"
-	cfg.JWT.ExpiresIn = time.Hour
+	cfg.JWT.ExpiresIn = time.Hour * 5
 	cfg.JWT.SigningMethod = jwt.SigningMethodHS256
 
 	cfg.Redis.Host = os.Getenv(envRedisHost)
