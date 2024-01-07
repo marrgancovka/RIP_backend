@@ -4,17 +4,45 @@ import (
 	"awesomeProject/internal/app/ds"
 	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // вывод списка всех заявок без услуг включенных в них + фильтрация по статусу и дате формирования
-func (r *Repository) Select_applications(status string, date time.Time, date_end time.Time) (*[]ds.Application, error) {
+func (r *Repository) Select_applications(status string, date time.Time, date_end time.Time) (*[]ds.ApplicationReq, error) {
 	var applications []ds.Application
+	var user ds.Users
+	var admin = ""
+	var res *gorm.DB
 	if status != "" {
-		res := r.db.Where("status = ? AND status != 'delete'", status).Where("date_creation BETWEEN ? AND ?", date, date_end).Find(&applications)
-		return &applications, res.Error
+		res = r.db.Where("status = ? AND status != 'delete' AND status <> 'created'", status).Where("date_formation BETWEEN ? AND ?", date, date_end).Order("date_formation DESC").Find(&applications)
+
+	} else {
+		res = r.db.Where("status <> ? AND status <> ?", "delete", "created").Where("date_formation BETWEEN ? AND ?", date, date_end).Order("date_formation DESC").Find(&applications)
 	}
-	res := r.db.Where("status <> ?", "delete").Where("date_creation BETWEEN ? AND ?", date, date_end).Find(&applications)
-	return &applications, res.Error
+	response := make([]ds.ApplicationReq, len(applications))
+	for i, app := range applications {
+		r.db.Table("users").Select("username").Where("id = ?", app.Id_user).First(&user)
+		if app.Id_admin != 0 {
+			var admin_ds ds.Users
+			adminRecord := r.db.Table("users").Select("username").Where("id = ?", app.Id_admin).First(&admin_ds)
+			if adminRecord.Error != nil {
+				return nil, adminRecord.Error
+			}
+			admin = admin_ds.UserName
+		}
+
+		response[i] = ds.ApplicationReq{
+			ID:             app.ID,
+			Status:         app.Status,
+			Date_creation:  app.Date_creation,
+			Date_formation: app.Date_formation,
+			Date_end:       app.Date_end,
+			User:           user.UserName,
+			Admin:          admin,
+		}
+	}
+	return &response, res.Error
 }
 
 func (r *Repository) Select_applications_buyer(status string, date time.Time, date_end time.Time, id_user uint) (*[]ds.Application, error) {

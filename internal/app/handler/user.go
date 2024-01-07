@@ -137,6 +137,7 @@ func (h *Handler) Login(gCtx *gin.Context) {
 			"AccessToken": strToken,
 			"TokenType":   "Bearer",
 			"Role":        user.UserRole,
+			"Username":    user.UserName,
 		})
 	}
 
