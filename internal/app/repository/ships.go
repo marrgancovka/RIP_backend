@@ -38,12 +38,18 @@ func (r *Repository) Select_ship(id int) (*ds.Ship, error) {
 }
 
 // добавление нового космического корабля
-func (r *Repository) Insert_ship(ship *ds.Ship) error {
+func (r *Repository) Insert_ship(ship *ds.Ship) (uint, error) {
 	ship.Image_url = default_image_url
 	ship.Is_delete = false
 
 	res := r.db.Create(&ship)
-	return res.Error
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	var newShip ds.Ship
+	ship_new := r.db.Order("id DESC").First(&newShip)
+	id := newShip.ID
+	return id, ship_new.Error
 }
 
 // добавление космического корабля в заявку и создание заявки если ее не было

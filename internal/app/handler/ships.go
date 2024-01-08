@@ -7,7 +7,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -99,20 +98,12 @@ func (h *Handler) Post_ship(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Поле id не должно быть заполнено!"})
 		return
 	}
-	if strings.ReplaceAll(newShip.Title, " ", "") == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Название - обязательное поле!"})
-		return
-	}
-	if strings.ReplaceAll(newShip.Type, " ", "") == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Тип - обязательное поле!"})
-		return
-	}
-	errRep := h.Repository.Insert_ship(&newShip)
+	newid, errRep := h.Repository.Insert_ship(&newShip)
 	if errRep != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errRep.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"status": "Создан новый космический корабль"})
+	c.JSON(http.StatusCreated, gin.H{"status": "Создан новый космический корабль", "id": newid})
 }
 
 // Post_application godoc

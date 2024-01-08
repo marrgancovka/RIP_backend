@@ -217,13 +217,8 @@ func (h *Handler) put_application_client(c *gin.Context) {
 // @Router /api/application/{id} [delete]
 func (h *Handler) delete_application(c *gin.Context) {
 	_, existsUser := c.Get("user_id")
-	userRole, existsUser := c.Get("user_role")
 	if !existsUser {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "пользлватель не авторизован"})
-		return
-	}
-	if userRole != role.Buyer {
-		c.JSON(http.StatusForbidden, gin.H{"error": "нет доступа"})
 		return
 	}
 	id_param := c.Param("id")
