@@ -30,7 +30,7 @@ func New(c *config.Config, l *logrus.Logger, r *repository.Repository, m *minio.
 
 // иницилизируем запросы
 func (h *Handler) Register(r *gin.Engine) {
-	// r.Use(h.WithAuthCheck).GET("/api/ships", h.Get_ships)
+	r.GET("/api/ships", h.Get_ships)
 	r.GET("/api/ships/:id", h.Get_ship)
 	r.POST("/api/ships", h.Post_ship)
 	r.POST("/api/ships/application", h.Post_application)
@@ -53,9 +53,6 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.LoadHTMLGlob("static/templates/*")
 	r.Static("/styles", "./static/css")
 	r.Static("/image", "./static/image")
-
-	r.POST("/api/login", h.Login)
-	r.POST("/api/sign_up", h.SignUp)
 
 }
 

@@ -12,13 +12,24 @@ import (
 
 // возвращает список всех космических кораблей
 func (h *Handler) Get_ships(c *gin.Context) {
+	userId, exists := c.Get("user_id")
+	if !exists {
+		search := c.Query("search")
+		ships, app, err := h.Repository.Select_ships(search, 2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": ships, "app": app})
+		return
+	}
 	search := c.Query("search")
-	ships, err := h.Repository.Select_ships(search)
+	ships, app, err := h.Repository.Select_ships(search, userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": ships})
+	c.JSON(http.StatusOK, gin.H{"data": ships, "app": app})
 	return
 }
 
