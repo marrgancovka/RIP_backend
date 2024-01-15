@@ -213,7 +213,7 @@ func (h *Handler) Delete_ship(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
 		return
 	}
-	if userRole != role.Admin && userRole != role.Manager {
+	if userRole != role.Admin {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Доступ запрещен"})
 		return
 	}

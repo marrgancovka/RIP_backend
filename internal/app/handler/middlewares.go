@@ -59,11 +59,6 @@ func (h *Handler) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Contex
 				gCtx.Set("user_role", myClaims.Role)
 				gCtx.Next()
 				return
-
-				// gCtx.AbortWithStatus(http.StatusForbidden)
-				// log.Printf("role %s is not assigned in %s", myClaims.Role, assignedRoles)
-
-				// return
 			}
 		}
 		gCtx.AbortWithStatus(http.StatusForbidden)

@@ -53,9 +53,6 @@ func (h *Handler) Register(r *gin.Engine) {
 	r.DELETE("/api/application/:id", h.WithAuthCheck(role.Buyer, role.Admin), h.delete_application)
 
 	r.GET("/api/flights/cosmodroms", h.WithoutAuth(role.Admin, role.Buyer), h.get_cosmodroms)
-	// r.PUT("/api/flights/date", h.WithAuthCheck(role.Buyer), h.put_flight_date)
-	// r.PUT("/api/flights/cosmodrom/begin", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_begin)
-	// r.PUT("/api/flights/cosmodrom/end", h.WithAuthCheck(role.Buyer), h.put_cosmodrom_end)
 	r.PUT("/api/flights", h.WithAuthCheck(role.Buyer, role.Admin), h.put_data_flights)
 	r.DELETE("/api/flights/application/:id_application/:id_ship", h.WithAuthCheck(role.Buyer, role.Admin), h.delete_flight)
 
