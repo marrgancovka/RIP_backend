@@ -57,9 +57,6 @@ func (h *Handler) SignUp(gCtx *gin.Context) {
 
 	err = h.Repository.Register(&ds.Users{
 		UserRole:     string(role.Buyer),
-		FirstName:    req.FirstName,
-		SecondName:   req.SecondName,
-		Phone:        req.Phone,
 		UserName:     req.UserName,
 		UserPassword: generateHashString(req.UserPassword), // пароли делаем в хешированном виде и далее будем сравнивать хеши, чтобы их не угнали с базой вместе
 	})
