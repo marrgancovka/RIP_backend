@@ -37,20 +37,7 @@ func (h *Handler) SignUp(gCtx *gin.Context) {
 		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("pass is empty"))
 		return
 	}
-
-	if req.FirstName == "" {
-		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
-		return
-	}
-	if req.SecondName == "" {
-		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
-		return
-	}
 	if req.UserName == "" {
-		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
-		return
-	}
-	if req.Phone == "" {
 		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
 		return
 	}

@@ -12,9 +12,6 @@ type LoginResp struct {
 }
 
 type RegisterReq struct {
-	FirstName    string `json:"name"` // лучше назвать то же самое что login
-	SecondName   string
-	Phone        string
 	UserName     string
 	UserPassword string `json:"pass"`
 }
