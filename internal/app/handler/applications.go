@@ -109,7 +109,7 @@ func (h *Handler) get_application(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}
-	application, flights, err2 := h.Repository.SelectApplication(id)
+	application, flights, err2 := h.Repository.Select_application(id)
 	if err2 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
 		return
