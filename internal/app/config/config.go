@@ -30,10 +30,10 @@ type JWTConfig struct {
 }
 
 type RedisConfig struct {
-	Host        string
-	Password    string
-	Port        int
-	User        string
+	Host string
+	// Password    string
+	Port int
+	// User        string
 	DialTimeout time.Duration
 	ReadTimeout time.Duration
 }
@@ -41,8 +41,8 @@ type RedisConfig struct {
 const (
 	envRedisHost = "REDIS_HOST"
 	envRedisPort = "REDIS_PORT"
-	envRedisUser = "REDIS_USER"
-	envRedisPass = "REDIS_PASSWORD"
+	// envRedisUser = "REDIS_USER"
+	// envRedisPass = "REDIS_PASSWORD"
 )
 
 // создает новый объект конфигурации, загружая данные из файла конфигурации
@@ -82,7 +82,7 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("redis port must be int value: %w", err)
 	}
-	cfg.Redis.Password = os.Getenv(envRedisPass)
-	cfg.Redis.User = os.Getenv(envRedisUser)
+	// cfg.Redis.Password = os.Getenv(envRedisPass)
+	// cfg.Redis.User = os.Getenv(envRedisUser)
 	return cfg, nil
 }
