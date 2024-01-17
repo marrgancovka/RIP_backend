@@ -2,7 +2,6 @@ package repository
 
 import (
 	"awesomeProject/internal/app/ds"
-	"fmt"
 	"time"
 )
 
@@ -17,57 +16,37 @@ func (r *Repository) Select_applications(status string, date time.Time, date_end
 	return &applications, res.Error
 }
 
+type ApplicationService struct {
+	ID             int
+	Title          string
+	CosmodromBegin string
+	CosmodromEnd   string
+	Date           time.Time
+}
+
 // вывод одной заявки со списком её услуг
-func (r *Repository) Select_application(id int) (*ds.Application, *[]struct {
-	Title           string
-	Cosmodrom_begin string
-	Cosmodrom_end   string
-	Date            time.Time
-}, error) {
+func (r *Repository) Select_application(id int) (*ds.Application, []ApplicationService, error) {
 	var applications ds.Application
-	var flights []ds.Flights
-	var ship ds.Ship
-	var cosmodrom ds.Cosmodroms
+	var applicationService []ApplicationService
 
 	//ищем такую заявку
 	result := r.db.First(&applications, "id =?", id)
 	if result.Error != nil {
 		return nil, nil, result.Error
 	}
-	fmt.Println("1111", applications)
-	//ищем м-м заявки
-	res := r.db.Where("Id_Application = ?", id).Find(&flights)
-	if res.Error != nil {
-		return nil, nil, res.Error
-	}
-	fmt.Println("22222", applications)
 
-	var response []struct {
-		Title           string
-		Cosmodrom_begin string
-		Cosmodrom_end   string
-		Date            time.Time
+	if err := r.db.Table("applications").
+		Select("Ships.id, Ships.title, CosmodromsBegin.title as cosmBegin, CosmodromsEnd.title as cosmEnd, Flights.date_flight").
+		Joins("JOIN Flights ON Flights.id_application = Applications.id").
+		Joins("JOIN Ships ON Flights.id_ship = Ships.id").
+		Joins("JOIN Cosmodroms as CosmodromsBegin ON Flights.id_cosmodrom_begin = CosmodromsBegin.id").
+		Joins("JOIN Cosmodroms as CosmodromsEnd ON Flights.id_cosmodrom_end = CosmodromsEnd.id").
+		Where("Applications.id = ?", id).
+		Scan(&applicationService).Error; err != nil {
+		return nil, nil, err
 	}
-	for i, fl := range flights {
-		var entry struct {
-			Title           string
-			Cosmodrom_begin string
-			Cosmodrom_end   string
-			Date            time.Time
-		}
-		response = append(response, entry)
-		r.db.Table("ships").Select("title").Where("id = ?", fl.Id_Ship).First(&ship)
-		response[i].Title = ship.Title
-		r.db.Table("cosmodroms").Select("title").Where("id = ?", fl.Id_Cosmodrom_Begin).First(&cosmodrom)
-		response[i].Cosmodrom_begin = cosmodrom.Title
-		r.db.Table("cosmodroms").Select("title").Where("id = ?", fl.Id_cosmodrom_End).First(&cosmodrom)
-		response[i].Cosmodrom_end = cosmodrom.Title
-		response[i].Date = fl.Date_Flight
-	}
-	fmt.Println("33333", applications)
-	fmt.Println(response)
 
-	return &applications, &response, nil
+	return &applications, applicationService, nil
 }
 
 // изменение статуса модератора
